@@ -25,7 +25,11 @@ class Customer(models.Model):
     consultant = models.ForeignKey("UserProfile", db_constraint=False)
     date = models.DateTimeField(auto_now_add=True)
     memo = models.TextField(blank=True, null=True)
-    tags = models.ManyToManyField("Tag", blank=True, db_constraint=False)
+    status_choice = ((0, '已报名'),
+                     (1, '未报名'),
+                     )
+    status = models.SmallIntegerField(choices=status_choice)
+    tags = models.ManyToManyField(to="Tag", blank=True, db_constraint=False)
 
     def __str__(self):
         return self.qq
@@ -215,7 +219,7 @@ class UserProfile(models.Model):
     """账户表"""
     user = models.OneToOneField(User)
     name = models.CharField(max_length=32)
-    roles = models.ManyToManyField("Role", blank=True, null=True, db_constraint=False)
+    roles = models.ManyToManyField("Role", blank=True, db_constraint=False)
 
     def __str__(self):
         return self.name
