@@ -4,7 +4,7 @@ from crm import models
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'qq', 'source', 'consultant', 'content', 'status', 'date')
+    list_display = ('id', 'qq', 'name', 'source', 'consultant', 'content', 'status', 'date')
     list_filter = ('source', 'consultant', 'date')
     search_fields = ('qq', 'name')
     raw_id_fields = ('consult_course',)

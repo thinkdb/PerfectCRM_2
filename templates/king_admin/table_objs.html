@@ -1,25 +1,37 @@
 {% extends "king_admin/table_index.html" %}
+{% load tags %}
 {% block  body_content %}
 
     <div class="container" style="padding-top: 50px;">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    {% for item in col_obj.list_display %}
-                        <td>{{ item }}</td>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in model_result %}
-                   <tr>
-                        {% for col in item %}
-                            <td>{{ col }}</td>
-                        {% endfor %}
-                   </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background: #79aec8; color: white;">
+                  <h3 class="panel-title"></h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                {% for item in col_obj.list_display %}
+                                    <th>{{ item }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% get_query_sets col_obj as query_sets %}
+                            {% for item in query_sets %}
+                                <tr>
+                                    {% build_table_row item col_obj %}
+                                </tr>
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 {% endblock %}

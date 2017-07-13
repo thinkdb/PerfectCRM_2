@@ -18,13 +18,7 @@ def display_table_objs(request, app_name, table_name):
 
     # from crm import models
     # print(col_obj.model.objects, models.UserProfile)
-    model_result = col_obj.model.objects.values_list(*col_obj.list_display)
-    # print(model_result)
-    for i in col_obj.model.objects.all():
-        print(dir(i))
-        print(dir(i.roles.source_field))
-
+    model_result = col_obj.model.objects.all()
 
     return render(request, 'king_admin/table_objs.html',
-                  {"col_obj": col_obj,
-                   "model_result": model_result})
+                  {"col_obj": col_obj})

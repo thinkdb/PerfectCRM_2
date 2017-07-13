@@ -8,13 +8,13 @@ class BaseAdmin(object):
 
 
 class CustomerAdmin(BaseAdmin):
-    list_display = ['qq', 'name']
+    list_display = ['qq', 'name', 'status', 'source', 'consult_course', 'date']
     # model = models.Customer
     # 等于 admin_class.model = models_class
 
 
 class UserProfileAdmin(BaseAdmin):
-    list_display = ['user', 'name', 'roles']
+    list_display = ['user', 'name']
 
 
 def register(models_class, admin_class=None):
