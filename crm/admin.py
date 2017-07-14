@@ -4,7 +4,7 @@ from crm import models
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'qq', 'source', 'consultant', 'content', 'status', 'date')
+    list_display = ('id', 'qq', 'name', 'source', 'consultant', 'content', 'status', 'date')
     list_filter = ('source', 'consultant', 'date')
     search_fields = ('qq', 'name')
     raw_id_fields = ('consult_course',)
@@ -29,3 +29,8 @@ admin.site.register(models.Role)
 admin.site.register(models.Tag)
 admin.site.register(models.UserProfile, UserProfileAdmin)
 admin.site.register(models.Menu)
+
+
+# django 的注册功能是把 表的model信息 与 自定义的类（用于显示列，过滤列等信息的类）进行一个关联功能
+# 数据为一个字典形式
+# {app_name: {table_name: 自定义的类}}
