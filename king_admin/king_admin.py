@@ -1,10 +1,15 @@
 from crm import models
+"""
+django 的注册功能是把 表的model信息 与 自定义的类（用于显示列，过滤列等信息的类）进行一个关联功能
+数据为一个字典形式
+{app_name: {table_name: 自定义的类}}
+"""
 enabled_admins = {}
 
 
 class BaseAdmin(object):
-    list_display = []
-    list_filter = []
+    list_display = []   # 需要显示的列信息
+    list_filter = []    # 参与过滤规则的列信息
 
 
 class CustomerAdmin(BaseAdmin):

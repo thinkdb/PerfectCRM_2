@@ -23,7 +23,6 @@ def build_table_row(obj, admin_class):
         # c._meta.get_field('date')
         # ---->  <django.db.models.fields.DateTimeField: date>
 
-
         field_obj = obj._meta.get_field(column)
         # print('----', field_obj.choices, column)
         if field_obj.choices:
@@ -41,3 +40,14 @@ def build_table_row(obj, admin_class):
         row_ele += "<td>%s</td>" % column_data
 
     return mark_safe(row_ele)
+
+
+@register.simple_tag
+def render_page_ele(page_counter, contacts):
+    ele = ''
+    page_num = 1
+    if abs(contacts.number - page_counter) <= page_num:
+        ele = '''<li><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
+    if contacts.number == page_counter:
+        ele = '''<li class="active"><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
+    return mark_safe(ele)

@@ -9,6 +9,10 @@
                   <h3 class="panel-title"></h3>
                 </div>
                 <div class="panel-body">
+
+                    {# 过滤内容 #}
+
+                    {# 动态表格内容 #}
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -18,16 +22,49 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% get_query_sets col_obj as query_sets %}
-                            {% for item in query_sets %}
+{#                            {% get_query_sets col_obj as query_sets %}#}
+                            {% for item in contacts.object_list %}
                                 <tr>
                                     {% build_table_row item col_obj %}
                                 </tr>
                             {% endfor %}
-
-
                         </tbody>
                     </table>
+
+                    {# 分页内容 #}
+                    <div class="pagination">
+                        <nav aria-label="...">
+                            <ul class="pagination">
+                                {# 首页区 #}
+                                {% if contacts.has_previous %}
+                                    <li class=""><a href="?page=1" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
+                                    <li class=""><a href="?page={{ contacts.previous_page_number }}" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
+                                {% else %}
+                                    <li class="disabled"><span aria-hidden="true">首页</span></li>
+                                    <li class="disabled"><span aria-hidden="true">上一页</span></li>
+                                {% endif %}
+    {##}
+                                {# 中间页面区 #}
+    {#                            <li class="active"><a href="#">{{ contacts.number }} <span class="sr-only">(current)</span></a></li>#}
+    {##}
+                                {% for page_counter in contacts.paginator.page_range %}
+                                    {% render_page_ele page_counter contacts %}
+                                {% endfor %}
+
+                                {# 尾页区 #}
+                                {% if contacts.has_next %}
+                                    <li><a href="?page={{ contacts.next_page_number }}" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>
+                                    <li><a href="?page={{ contacts.paginator.num_pages }}" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>
+                                {% else %}
+                                    <li class="disabled"><span aria-hidden="true">下一页</span></li>
+                                    <li class="disabled"><span aria-hidden="true">尾页</span></li>
+                                {% endif %}
+
+
+                            </ul>
+                       </nav>
+                    </div>
+
                 </div>
             </div>
         </div>
