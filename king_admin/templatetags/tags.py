@@ -1,6 +1,5 @@
 from django import template
 from django.utils.safestring import mark_safe
-import time
 
 register = template.Library()
 
@@ -17,12 +16,18 @@ def get_query_sets(admin_class):
 
 @register.simple_tag
 def build_table_row(obj, admin_class):
+    """
+    :param obj: 分页的数据对象
+    :param admin_class: 获取的数据对象
+    :return:
+    """
     row_ele = ""
     for column in admin_class.list_display:
         # c = models.Customer.objects.all()[0]
         # c._meta.get_field('date')
         # ---->  <django.db.models.fields.DateTimeField: date>
 
+        # 从分页的数据对象中获取具体的列信息
         field_obj = obj._meta.get_field(column)
         # print('----', field_obj.choices, column)
         if field_obj.choices:
@@ -43,11 +48,56 @@ def build_table_row(obj, admin_class):
 
 
 @register.simple_tag
-def render_page_ele(page_counter, contacts):
+def render_page_ele(page_counter, contacts, admin_class):
+    """
+    :param page_counter: 循环的次数
+    :param contacts: 分页的对象信息
+    :param admin_class: 获取的数据对象
+    :return:
+    """
     ele = ''
-    page_num = 1
-    if abs(contacts.number - page_counter) <= page_num:
+    if abs(contacts.number - page_counter) <= admin_class.list_per_page:
         ele = '''<li><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
     if contacts.number == page_counter:
         ele = '''<li class="active"><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
     return mark_safe(ele)
+
+
+@register.simple_tag
+def render_filter_ele(condition, admin_class, filter_conditions):
+    """
+    :param condition: 需要过滤的列 列表
+                      col_obj = king_admin.enabled_admins['crm']['customer']
+                      col_obj.list_filters
+                        --->  ['status', 'source', 'consult_course', 'consultant']
+    :param admin_class: 获取的数据对象
+    :param filter_conditions:  所有需要过滤的列信息
+    :return:
+    """
+    select_ele = """<select class="form-control" name='%s'> <option>All</option>""" % condition
+    field_obj = admin_class.model._meta.get_field(condition)
+    # 获取列对象, 每个列都类型, 根据不同的列类型去做不同的事
+    # 主要是 choices 、外键、多对多、一对多类型的数据需要二次处理
+
+    # 处理 choices 类型的数据
+    if field_obj.choices:
+        selected = ""
+        for choices_item in field_obj.choices:
+            if str(choices_item[0]) == filter_conditions.get(condition):
+                selected = "selected"
+            select_ele += """<option %s value='%s'> %s </option>""" % (selected, choices_item[0], choices_item[1])
+            selected = ""
+
+    # 处理外键类型的数据
+    if type(field_obj).__name__ == "ForeignKey":
+        selected = ""
+        for choices_item in field_obj.get_choices()[1:]:
+            # 获取外键中的数据, 数据为元组类型, 第一个数据为 ------, 需要去除它, 所以使用切片功能
+            if str(choices_item[0]) == filter_conditions.get(condition):
+                selected = "selected"
+            select_ele += """<option %s value='%s'> %s </option>""" % (selected, choices_item[0], choices_item[1])
+            selected = ""
+
+    select_ele += """</select>"""
+
+    return mark_safe(select_ele)

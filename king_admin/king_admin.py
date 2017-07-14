@@ -8,12 +8,15 @@ enabled_admins = {}
 
 
 class BaseAdmin(object):
-    list_display = []   # 需要显示的列信息
-    list_filter = []    # 参与过滤规则的列信息
+    list_display = []    # 需要显示的列信息
+    list_filters = []    # 参与过滤规则的列信息
+    list_per_page = 10   # 默认每页显示的行数
 
 
 class CustomerAdmin(BaseAdmin):
     list_display = ['qq', 'name', 'status', 'source', 'consult_course', 'date']
+    list_filters = ['status', 'source', 'consult_course', 'consultant']
+
     # model = models.Customer
     # 等于 admin_class.model = models_class
 

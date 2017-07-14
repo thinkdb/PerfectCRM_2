@@ -11,6 +11,21 @@
                 <div class="panel-body">
 
                     {# 过滤内容 #}
+                <form>
+                    <div class="row">
+                        {% for condition in col_obj.list_filters %}
+                            <div class="col-lg-2">
+                                <span>{{ condition }}</span>
+                                {% render_filter_ele condition col_obj filter_conditions %}
+                            </div>
+                        {% endfor %}
+                        <input type="submit" class="btn btn-success" value="检索">
+                    </div>
+                    <div>
+
+                    </div>
+                </form>
+
 
                     {# 动态表格内容 #}
                     <table class="table table-hover">
@@ -48,7 +63,7 @@
     {#                            <li class="active"><a href="#">{{ contacts.number }} <span class="sr-only">(current)</span></a></li>#}
     {##}
                                 {% for page_counter in contacts.paginator.page_range %}
-                                    {% render_page_ele page_counter contacts %}
+                                    {% render_page_ele page_counter contacts col_obj %}
                                 {% endfor %}
 
                                 {# 尾页区 #}
