@@ -1,8 +1,8 @@
 from crm import models
 """
-django 的注册功能是把 表的model信息 与 自定义的类（用于显示列，过滤列等信息的类）进行一个关联功能
+django 的注册功能是把 表的model信息 与 自定义的类（用于显示列，过滤列等信息的类）进行一个关联
 数据为一个字典形式
-{app_name: {table_name: 自定义的类}}
+enabled_admins = {app_name: {table_name: 自定义的类}}
 """
 enabled_admins = {}
 
@@ -10,13 +10,13 @@ enabled_admins = {}
 class BaseAdmin(object):
     list_display = []    # 需要显示的列信息
     list_filters = []    # 参与过滤规则的列信息
-    list_per_page = 10   # 默认每页显示的行数
+    list_per_page = 20   # 默认每页显示的行数
 
 
 class CustomerAdmin(BaseAdmin):
     list_display = ['qq', 'name', 'status', 'source', 'consult_course', 'date']
     list_filters = ['status', 'source', 'consult_course', 'consultant']
-
+    list_per_page = 2
     # model = models.Customer
     # 等于 admin_class.model = models_class
 

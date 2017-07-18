@@ -48,19 +48,34 @@ def build_table_row(obj, admin_class):
 
 
 @register.simple_tag
-def render_page_ele(page_counter, contacts, admin_class):
+def render_page_ele(page_counter, contacts, admin_class, filter_conditions):
     """
     :param page_counter: 循环的次数
     :param contacts: 分页的对象信息
     :param admin_class: 获取的数据对象
+    :param filter_conditions: 分页时带入要过滤的参数
     :return:
     """
     ele = ''
+    filters = ''
+    for k, v in filter_conditions.items():
+        filters += "&%s=%s" % (k, v)
     if abs(contacts.number - page_counter) <= admin_class.list_per_page:
-        ele = '''<li><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
+        ele = '''<li><a href="?page=%s%s">%s</a></li>''' % (page_counter, filters, page_counter)
     if contacts.number == page_counter:
         ele = '''<li class="active"><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
     return mark_safe(ele)
+
+
+@register.simple_tag
+def render_page_previous_next(contacts, filter_conditions):
+    filters = ''
+    if filter_conditions:
+        for k, v in filter_conditions.items():
+            filters += "?page=%s&%s=%s" % (contacts, k, v)
+    else:
+        filters += "?page=%s" % contacts
+    return filters
 
 
 @register.simple_tag
@@ -101,3 +116,25 @@ def render_filter_ele(condition, admin_class, filter_conditions):
     select_ele += """</select>"""
 
     return mark_safe(select_ele)
+
+
+@register.simple_tag
+def build_table_header_orderby_column(column, orderby_key, filter_conditions):
+    """
+    单列排序
+    :param column: 要显示的列名
+    :param orderby_key: 要排序的列名
+    :param filter_conditions: 过滤数据标签
+    :return: 表格头部标签
+    """
+
+    filters = ''
+    for k, v in filter_conditions.items():
+        filters += "&%s=%s" % (k, v)
+
+    th_tag = """<th><a href="?o={order_key}{filters}">{column}</a></th>"""
+    if orderby_key and orderby_key.startswith('-'):
+        ord_key = column
+    else:
+        ord_key = '-'+column
+    return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column))

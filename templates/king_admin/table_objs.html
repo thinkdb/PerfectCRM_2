@@ -31,8 +31,9 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                {% for item in col_obj.list_display %}
-                                    <th>{{ item }}</th>
+                                {% for column in col_obj.list_display %}
+                                    {% build_table_header_orderby_column column orderby_key filter_conditions %}
+
                                 {% endfor %}
                             </tr>
                         </thead>
@@ -50,10 +51,13 @@
                     <div class="pagination">
                         <nav aria-label="...">
                             <ul class="pagination">
+                                <li>
+                                    <span aria-hidden="true">共{{ contacts.paginator.num_pages }}页</span>
+                                </li>
                                 {# 首页区 #}
                                 {% if contacts.has_previous %}
                                     <li class=""><a href="?page=1" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
-                                    <li class=""><a href="?page={{ contacts.previous_page_number }}" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
+                                    <li class=""><a href="{% render_page_previous_next contacts.previous_page_number filter_conditions %}" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
                                 {% else %}
                                     <li class="disabled"><span aria-hidden="true">首页</span></li>
                                     <li class="disabled"><span aria-hidden="true">上一页</span></li>
@@ -63,12 +67,12 @@
     {#                            <li class="active"><a href="#">{{ contacts.number }} <span class="sr-only">(current)</span></a></li>#}
     {##}
                                 {% for page_counter in contacts.paginator.page_range %}
-                                    {% render_page_ele page_counter contacts col_obj %}
+                                    {% render_page_ele page_counter contacts col_obj filter_conditions %}
                                 {% endfor %}
 
                                 {# 尾页区 #}
                                 {% if contacts.has_next %}
-                                    <li><a href="?page={{ contacts.next_page_number }}" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>
+                                    <li><a href="{% render_page_previous_next contacts.next_page_number filter_conditions %}" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>
                                     <li><a href="?page={{ contacts.paginator.num_pages }}" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>
                                 {% else %}
                                     <li class="disabled"><span aria-hidden="true">下一页</span></li>
