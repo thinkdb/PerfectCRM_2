@@ -67,7 +67,7 @@ def render_page_ele(page_counter, contacts, admin_class, filter_conditions, orde
     if abs(contacts.number - page_counter) <= admin_class.list_per_page:
         ele = '''<li><a href="?page=%s%s%s">%s</a></li>''' % (page_counter, filters, orders, page_counter)
     if contacts.number == page_counter:
-        ele = '''<li class="active"><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
+        ele = '''<li class="active"><a href="?page=%s%s%s">%s</a></li>''' % (page_counter, filters, orders, page_counter)
     return mark_safe(ele)
 
 
@@ -137,15 +137,23 @@ def build_table_header_orderby_column(column, orderby_key, filter_conditions):
     """
 
     filters = ''
+    angle_str = ''
     for k, v in filter_conditions.items():
         filters += "&%s=%s" % (k, v)
 
-    th_tag = """<th><a href="?o={order_key}{filters}">{column}</a></th>"""
+    th_tag = """<th><a href="?o={order_key}{filters}">{column}</a>{angle}</th>"""
     if orderby_key and orderby_key.startswith('-'):
         ord_key = column
     else:
         ord_key = '-'+column
-    return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column))
+    if orderby_key and orderby_key.strip('-') == column:
+        if orderby_key.startswith('-'):
+            angle_str = '<i class="fa fa-angle-down" aria-hidden="true"></i>'
+        else:
+            angle_str = '<i class="fa fa-angle-up" aria-hidden="true"></i>'
+    else:
+        angle_str = ''
+    return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column, angle=angle_str))
 
 
 @register.simple_tag
