@@ -48,33 +48,41 @@ def build_table_row(obj, admin_class):
 
 
 @register.simple_tag
-def render_page_ele(page_counter, contacts, admin_class, filter_conditions):
+def render_page_ele(page_counter, contacts, admin_class, filter_conditions, orderby_key):
     """
     :param page_counter: 循环的次数
     :param contacts: 分页的对象信息
     :param admin_class: 获取的数据对象
     :param filter_conditions: 分页时带入要过滤的参数
+    :param orderby_key: 排序列
     :return:
     """
     ele = ''
     filters = ''
+    orders = ''
     for k, v in filter_conditions.items():
         filters += "&%s=%s" % (k, v)
+    if orderby_key:
+        orders += "&o={order_key}".format(order_key=orderby_key)
     if abs(contacts.number - page_counter) <= admin_class.list_per_page:
-        ele = '''<li><a href="?page=%s%s">%s</a></li>''' % (page_counter, filters, page_counter)
+        ele = '''<li><a href="?page=%s%s%s">%s</a></li>''' % (page_counter, filters, orders, page_counter)
     if contacts.number == page_counter:
         ele = '''<li class="active"><a href="?page=%s">%s</a></li>''' % (page_counter, page_counter)
     return mark_safe(ele)
 
 
 @register.simple_tag
-def render_page_previous_next(contacts, filter_conditions):
+def render_page_previous_next(contacts, filter_conditions, orderby_key):
     filters = ''
     if filter_conditions:
         for k, v in filter_conditions.items():
             filters += "?page=%s&%s=%s" % (contacts, k, v)
     else:
         filters += "?page=%s" % contacts
+
+    if orderby_key:
+        filters += "&o={order_key}".format(order_key=orderby_key)
+
     return filters
 
 
@@ -138,3 +146,29 @@ def build_table_header_orderby_column(column, orderby_key, filter_conditions):
     else:
         ord_key = '-'+column
     return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column))
+
+
+@register.simple_tag
+def render_page_top(filter_conditions, orderby_key):
+    filters = '?page=1'
+    if filter_conditions:
+        for k, v in filter_conditions.items():
+            filters += "&%s=%s" % (k, v)
+
+    if orderby_key:
+        filters += "&o={order_key}".format(order_key=orderby_key)
+
+    return mark_safe(filters)
+
+
+@register.simple_tag
+def render_page_bottom(contacts, filter_conditions, orderby_key):
+    filters = '?page=%s' % contacts.paginator.num_pages
+    if filter_conditions:
+        for k, v in filter_conditions.items():
+            filters += "&%s=%s" % (k, v)
+
+    if orderby_key:
+        filters += "&o={order_key}".format(order_key=orderby_key)
+
+    return mark_safe(filters)

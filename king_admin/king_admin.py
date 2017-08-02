@@ -30,7 +30,8 @@ def register(models_class, admin_class=None):
         # 获取 app 名字
         enabled_admins[models_class._meta.app_label] = {}
         # enabled_admins['crm'] = {}
-
+    if not admin_class:
+        admin_class = BaseAdmin()
     admin_class.model = models_class
     # models.Customer, CustomerAdmin 使前面两个绑定在一起， 建立关系
 
