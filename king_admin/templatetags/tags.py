@@ -72,16 +72,17 @@ def render_page_ele(page_counter, contacts, admin_class, filter_conditions, orde
 
 
 @register.simple_tag
-def render_page_previous_next(contacts, filter_conditions, orderby_key):
-    filters = ''
+def render_page_previous_next(contacts, filter_conditions, orderby_key, query_content=''):
+    filters = '?page=%s' % contacts
     if filter_conditions:
         for k, v in filter_conditions.items():
-            filters += "?page=%s&%s=%s" % (contacts, k, v)
-    else:
-        filters += "?page=%s" % contacts
+            filters += "&%s=%s" % (k, v)
 
     if orderby_key:
         filters += "&o={order_key}".format(order_key=orderby_key)
+
+    if query_content:
+        filters += "&_query={query}".format(query=query_content)
 
     return filters
 
@@ -148,9 +149,9 @@ def build_table_header_orderby_column(column, orderby_key, filter_conditions):
         ord_key = '-'+column
     if orderby_key and orderby_key.strip('-') == column:
         if orderby_key.startswith('-'):
-            angle_str = '<i class="fa fa-angle-down" aria-hidden="true"></i>'
+            angle_str = '<i style=" padding: 3px 0 0 5px;color: #1f8cea;" class="fa fa-caret-down" aria-hidden="true"></i>'
         else:
-            angle_str = '<i class="fa fa-angle-up" aria-hidden="true"></i>'
+            angle_str = '<i style=" padding: 3px 0 0 5px;color: #1f8cea;" class="fa fa-caret-up" aria-hidden="true"></i>'
     else:
         angle_str = ''
     return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column, angle=angle_str))

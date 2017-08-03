@@ -23,10 +23,19 @@
                                 {% render_filter_ele condition col_obj filter_conditions %}
                             </div>
                         {% endfor %}
-                        <input type="submit" class="btn btn-success" value="检索">
-                    </div>
-                    <div>
+                        <input style="margin-top: 19px;" type="submit" class="btn btn-success" value="过滤" />
 
+                    </div>
+                    <div class="row" style="margin-top: 20px;">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="_query" placeholder="Search for {% for item in col_obj.search_fields %} {{ item }}{% endfor %}"
+                                       value="{{ query_content }}">
+                                <span class="input-group-btn">
+                                    <input type="submit" class="btn btn-success" value="检索" />
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
@@ -62,7 +71,7 @@
                                 {% if contacts.has_previous %}
                                     <li class=""><a href="{% render_page_top filter_conditions orderby_key %}" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
 {#                                    <li class=""><a href="?page=1" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>#}
-                                    <li class=""><a href="{% render_page_previous_next contacts.previous_page_number filter_conditions orderby_key %}" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
+                                    <li class=""><a href="{% render_page_previous_next contacts.previous_page_number filter_conditions orderby_key query_content %}" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
                                 {% else %}
                                     <li class="disabled"><span aria-hidden="true">首页</span></li>
                                     <li class="disabled"><span aria-hidden="true">上一页</span></li>
@@ -77,14 +86,13 @@
 
                                 {# 尾页区 #}
                                 {% if contacts.has_next %}
-                                    <li><a href="{% render_page_previous_next contacts.next_page_number filter_conditions orderby_key %}" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>
+                                    <li><a href="{% render_page_previous_next contacts.next_page_number filter_conditions orderby_key query_content %}" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>
                                     <li><a href="{% render_page_bottom contacts filter_conditions orderby_key %}" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>
 {#                                    <li><a href="?page={{ contacts.paginator.num_pages }}" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>#}
                                 {% else %}
                                     <li class="disabled"><span aria-hidden="true">下一页</span></li>
                                     <li class="disabled"><span aria-hidden="true">尾页</span></li>
                                 {% endif %}
-
 
                             </ul>
                        </nav>
