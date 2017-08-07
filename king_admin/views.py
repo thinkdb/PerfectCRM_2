@@ -7,6 +7,7 @@ from king_admin import utils
 
 
 def index(request):
+    print(dir(king_admin.enabled_admins), king_admin.enabled_admins)
     return render(request, 'king_admin/table_index.html',
                   {'table_list': king_admin.enabled_admins})
 
@@ -28,7 +29,6 @@ def display_table_objs(request, app_name, table_name):
 
     # 动态过滤数据
     object_list, filter_conditions, orderby_key, query_content = utils.table_filter(request, col_obj)
-    print(query_content)
     # 排序数据， 这边需要修改成使用统一的数据源，现在无法对过滤后的数据进行排序
     # object_list, orderby_key = utils.request_order_data(request, object_list)
     """
@@ -66,4 +66,5 @@ def display_table_objs(request, app_name, table_name):
                    "contacts": contacts,
                    "filter_conditions": filter_conditions,
                    "orderby_key": orderby_key,
-                   "query_content": query_content})
+                   "query_content": query_content,
+                   "app_name": app_name})

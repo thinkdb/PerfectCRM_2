@@ -10,6 +10,11 @@ def render_app_name(admin_class):
 
 
 @register.simple_tag
+def build_titile_ele(app_name, col_obj):
+    return "{app} / {table}".format(app=app_name.upper(), table=col_obj.model._meta.verbose_name)
+
+
+@register.simple_tag
 def get_query_sets(admin_class):
     return admin_class.model.objects.all()
 
@@ -48,26 +53,30 @@ def build_table_row(obj, admin_class):
 
 
 @register.simple_tag
-def render_page_ele(page_counter, contacts, admin_class, filter_conditions, orderby_key):
+def render_page_ele(page_counter, contacts, admin_class, filter_conditions, orderby_key, query_content):
     """
     :param page_counter: 循环的次数
     :param contacts: 分页的对象信息
     :param admin_class: 获取的数据对象
     :param filter_conditions: 分页时带入要过滤的参数
     :param orderby_key: 排序列
+    :param query_content: 查询列
     :return:
     """
     ele = ''
     filters = ''
     orders = ''
+    _query = ''
     for k, v in filter_conditions.items():
         filters += "&%s=%s" % (k, v)
     if orderby_key:
         orders += "&o={order_key}".format(order_key=orderby_key)
+    if query_content:
+        _query += "&_query={query}".format(query=query_content)
     if abs(contacts.number - page_counter) <= admin_class.list_per_page:
-        ele = '''<li><a href="?page=%s%s%s">%s</a></li>''' % (page_counter, filters, orders, page_counter)
+        ele = '''<li><a href="?page=%s%s%s%s">%s</a></li>''' % (page_counter, filters, orders,  _query, page_counter)
     if contacts.number == page_counter:
-        ele = '''<li class="active"><a href="?page=%s%s%s">%s</a></li>''' % (page_counter, filters, orders, page_counter)
+        ele = '''<li class="active"><a href="?page=%s%s%s%s">%s</a></li>''' % (page_counter, filters, orders, _query, page_counter)
     return mark_safe(ele)
 
 

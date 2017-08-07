@@ -10,7 +10,7 @@
         <div class="row">
             <div class="panel panel-default">
                 <div class="panel-heading" style="background: #79aec8; color: white;">
-                  <h3 class="panel-title"></h3>
+                  <h3 class="panel-title">{% build_titile_ele app_name col_obj %}</h3>
                 </div>
                 <div class="panel-body">
 
@@ -81,7 +81,7 @@
     {#                            <li class="active"><a href="#">{{ contacts.number }} <span class="sr-only">(current)</span></a></li>#}
     {##}
                                 {% for page_counter in contacts.paginator.page_range %}
-                                    {% render_page_ele page_counter contacts col_obj filter_conditions orderby_key %}
+                                    {% render_page_ele page_counter contacts col_obj filter_conditions orderby_key query_content %}
                                 {% endfor %}
 
                                 {# 尾页区 #}
