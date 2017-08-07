@@ -1,4 +1,6 @@
 from django.forms import ModelForm
+from django.forms import fields
+from django.forms import models
 
 
 def create_model_form(request, admin_class):
@@ -10,10 +12,18 @@ def create_model_form(request, admin_class):
     """
 
     def __new__(cls, *args, **kwargs):
+
+        # cls 为每个表的 modelform 对象信息
+
         for field_name, field_obj in cls.base_fields.items():
-            print(field_obj, dir(field_obj))
+            # print(dir(field_obj), field_obj)
+            if field_obj.__class__ in (fields.TypedChoiceField, models.ModelChoiceField):
+                # 定义选择框宽度
+                field_obj.widget.attrs['style'] = 'width:80px;'
+            else:
+                field_obj.widget.attrs['style'] = 'width:300px;'
             field_obj.widget.attrs['class'] = 'form-control'
-            field_obj.widget.attrs['style'] = 'width:300px;'
+
         return ModelForm.__new__(cls)
 
     class Meta:

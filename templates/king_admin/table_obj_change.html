@@ -13,11 +13,18 @@
                 </div>
                 <div class="panel-body">
                     <p>Change {% render_app_name admin_class %}</p>
-                    <form class="form-horizontal">
-
+                    <form class="form-horizontal" method="post">
+                        {% csrf_token %}
                         {% for field in form_obj %}
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{{ field.label }}</label>
+                            <label class="col-sm-2 control-label" style="font-weight: normal;">
+                                {% if field.field.required %}
+                                    <b>{{ field.label }}</b>
+                                    <i style="color: #F00;">*</i>
+                                {% else %}
+                                    {{ field.label }}
+                                {% endif %}
+                                </label>
                             <div class="col-sm-10">
                                 {{ field }}
                             </div>

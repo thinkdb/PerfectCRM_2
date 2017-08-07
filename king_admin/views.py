@@ -84,10 +84,18 @@ def table_obj_change(request, app_name, table_name, wid):
     # 动态创建 ModelForm 类对象
     model_form_class = forms.create_model_form(request, admin_class)
 
+    # 根据数据主键，获取记录信息
     recode_info = admin_class.model.objects.get(id=wid)
 
-    # 实例化类对象
-    form_obj = model_form_class(instance=recode_info)
+    if request.method == 'POST':
+        # 传入前端的数据,在传入数据库中的数据, 这时 form 会做更新操作, 如果只有前端数据, 只会新建一条记录
+        form_obj = model_form_class(request.POST, instance=recode_info)
+        if form_obj.is_valid:
+            form_obj.save()
+    else:
+        # 实例化类对象
+        form_obj = model_form_class(instance=recode_info)
+
 
     return render(request, 'king_admin/table_obj_change.html', {'form_obj': form_obj,
                                                                 'app_name': app_name,
