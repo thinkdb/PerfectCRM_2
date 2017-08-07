@@ -1,5 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
+from django.utils.timezone import datetime, timedelta
+# 使用 django 系统时区的时间数据, 不能使用操作系统默认的时间, 无法处理 django 的时区问题
 
 register = template.Library()
 
@@ -107,7 +109,7 @@ def render_filter_ele(condition, admin_class, filter_conditions):
     :param filter_conditions:  所有需要过滤的列信息
     :return:
     """
-    select_ele = """<select class="form-control" name='%s'> <option>All</option>""" % condition
+    select_ele = """<select class="form-control" name='{filter_field_name}'> <option>All</option>"""
     field_obj = admin_class.model._meta.get_field(condition)
     # 获取列对象, 每个列都类型, 根据不同的列类型去做不同的事
     # 主要是 choices 、外键、多对多、一对多类型的数据需要二次处理
@@ -131,8 +133,33 @@ def render_filter_ele(condition, admin_class, filter_conditions):
             select_ele += """<option %s value='%s'> %s </option>""" % (selected, choices_item[0], choices_item[1])
             selected = ""
 
+    # 处理时间类型的数据
+    if type(field_obj).__name__ in ("DateField", "DateTimeField"):
+        date_eles = []
+        today_ele = datetime.now().date()
+        date_eles.append(['今天', today_ele])
+        date_eles.append(['昨天', today_ele - timedelta(days=1)])
+        date_eles.append(['近7天', today_ele - timedelta(days=7)])
+        date_eles.append(['本月', today_ele.replace(day=1)])
+        date_eles.append(['近30天', today_ele - timedelta(days=30)])
+        date_eles.append(['近90天', today_ele - timedelta(days=90)])
+        date_eles.append(['近半年', today_ele - timedelta(days=180)])
+        date_eles.append(['本年', today_ele.replace(month=1, day=1)])
+        date_eles.append(['近一年', today_ele - timedelta(days=365)])
+        selected = ''
+        filter_field_name = '%s__gte' % condition
+        for item in date_eles:
+            if str(item[1]) == str(filter_conditions.get(filter_field_name)):
+                selected = "selected"
+            select_ele += """<option %s value='%s'> %s </option>""" % (selected, item[1], item[0])
+            selected = ''
+
+    else:
+        filter_field_name = condition
+
     select_ele += """</select>"""
 
+    select_ele = select_ele.format(filter_field_name=filter_field_name)
     return mark_safe(select_ele)
 
 
