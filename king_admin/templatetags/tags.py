@@ -22,14 +22,15 @@ def get_query_sets(admin_class):
 
 
 @register.simple_tag
-def build_table_row(obj, admin_class):
+def build_table_row(request, obj, admin_class):
     """
+    :param request: 请求链接数据
     :param obj: 分页的数据对象
     :param admin_class: 获取的数据对象
-    :return:
+    :return: 返回每列数据
     """
     row_ele = ""
-    for column in admin_class.list_display:
+    for index, column in enumerate(admin_class.list_display):
         # c = models.Customer.objects.all()[0]
         # c._meta.get_field('date')
         # ---->  <django.db.models.fields.DateTimeField: date>
@@ -48,6 +49,13 @@ def build_table_row(obj, admin_class):
         if type(column_data).__name__ == 'datetime':
             # 转换时间列
             column_data = column_data.strftime("%Y-%m-%d %H:%M:%S")
+
+        # 为第一列添加一个 a 标签，用来编辑此行数据
+        if index == 0:
+            # 如果主键名不是　id， 这边会报错
+            column_data = "<a href={request_path}{obj_id}/change>{data}</a>".format(request_path=request.path,
+                                                                                    obj_id=obj.id,
+                                                                                    data=column_data)
 
         row_ele += "<td>%s</td>" % column_data
 
@@ -147,6 +155,8 @@ def render_filter_ele(condition, admin_class, filter_conditions):
         date_eles.append(['本年', today_ele.replace(month=1, day=1)])
         date_eles.append(['近一年', today_ele - timedelta(days=365)])
         selected = ''
+
+        # 设置 select 标签中的 name 属性值
         filter_field_name = '%s__gte' % condition
         for item in date_eles:
             if str(item[1]) == str(filter_conditions.get(filter_field_name)):
@@ -185,9 +195,11 @@ def build_table_header_orderby_column(column, orderby_key, filter_conditions):
         ord_key = '-'+column
     if orderby_key and orderby_key.strip('-') == column:
         if orderby_key.startswith('-'):
-            angle_str = '<i style=" padding: 3px 0 0 5px;color: #1f8cea;" class="fa fa-caret-down" aria-hidden="true"></i>'
+            angle_str = '<i style=" padding: 3px 0 0 5px;color: #1f8cea;" ' \
+                        'class="fa fa-caret-down" aria-hidden="true"></i>'
         else:
-            angle_str = '<i style=" padding: 3px 0 0 5px;color: #1f8cea;" class="fa fa-caret-up" aria-hidden="true"></i>'
+            angle_str = '<i style=" padding: 3px 0 0 5px;color: #1f8cea;" ' \
+                        'class="fa fa-caret-up" aria-hidden="true"></i>'
     else:
         angle_str = ''
     return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column, angle=angle_str))

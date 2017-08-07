@@ -17,6 +17,7 @@
                     {# 过滤内容 #}
                 <form>
                     <div class="row">
+                    {% if col_obj.list_filters %}
                         {% for condition in col_obj.list_filters %}
                             <div class="col-lg-2">
                                 <span>{{ condition }}</span>
@@ -24,8 +25,9 @@
                             </div>
                         {% endfor %}
                         <input style="margin-top: 19px;" type="submit" class="btn btn-success" value="过滤" />
-
+                    {% endif %}
                     </div>
+                    {% if col_obj.search_fields %}
                     <div class="row" style="margin-top: 20px;">
                         <div class="col-lg-6">
                             <div class="input-group">
@@ -37,6 +39,7 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 </form>
 
 
@@ -54,7 +57,7 @@
 {#                            {% get_query_sets col_obj as query_sets %}#}
                             {% for item in contacts.object_list %}
                                 <tr>
-                                    {% build_table_row item col_obj %}
+                                    {% build_table_row request item col_obj %}
                                 </tr>
                             {% endfor %}
                         </tbody>

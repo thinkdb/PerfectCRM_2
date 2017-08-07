@@ -1,0 +1,35 @@
+{% extends "king_admin/table_index.html" %}
+{% load tags %}
+{% block css %}
+<link rel="stylesheet" href="/static/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block  body_content %}
+<div class="container" style="padding-top: 50px;">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background: #79aec8; color: white;">
+                    <h3 class="panel-title">{% build_titile_ele app_name admin_class %}</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Change {% render_app_name admin_class %}</p>
+                    <form class="form-horizontal">
+
+                        {% for field in form_obj %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{ field.label }}</label>
+                            <div class="col-sm-10">
+                                {{ field }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="submit-row">
+                        <input type="submit" class="btn btn-info pull-right" value="保存" />
+                    </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+{% endblock %}

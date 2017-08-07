@@ -15,6 +15,7 @@ def table_filter(request, admin_class):
     ignore_keys = ['o', 'page', '_query']
     orderby_key = None
 
+    # 添加过滤条件，key 为标签的 name 属性值， 需要提前设置好
     for k, v in request.GET.items():
         if k in ignore_keys:  # 关键字，不能让其他参与数据过滤
             continue

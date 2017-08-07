@@ -2,12 +2,12 @@ from django.shortcuts import render
 from king_admin import king_admin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from king_admin import utils
+from king_admin import forms
 
 # Create your views here.
 
 
 def index(request):
-    print(dir(king_admin.enabled_admins), king_admin.enabled_admins)
     return render(request, 'king_admin/table_index.html',
                   {'table_list': king_admin.enabled_admins})
 
@@ -68,3 +68,27 @@ def display_table_objs(request, app_name, table_name):
                    "orderby_key": orderby_key,
                    "query_content": query_content,
                    "app_name": app_name})
+
+
+def table_obj_change(request, app_name, table_name, wid):
+    """
+    :param request: 请求的链接信息
+    :param app_name:
+    :param table_name:
+    :param wid: 记录的主键id值
+    :return:
+    """
+    # 获取每个表的 model
+    admin_class = king_admin.enabled_admins[app_name][table_name]
+
+    # 动态创建 ModelForm 类对象
+    model_form_class = forms.create_model_form(request, admin_class)
+
+    recode_info = admin_class.model.objects.get(id=wid)
+
+    # 实例化类对象
+    form_obj = model_form_class(instance=recode_info)
+
+    return render(request, 'king_admin/table_obj_change.html', {'form_obj': form_obj,
+                                                                'app_name': app_name,
+                                                                'admin_class': admin_class})

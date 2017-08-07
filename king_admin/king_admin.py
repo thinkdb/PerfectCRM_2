@@ -18,7 +18,7 @@ class CustomerAdmin(BaseAdmin):
     list_display = ['id', 'qq', 'name', 'status', 'source', 'consult_course', 'date']
     list_filters = ['status', 'source', 'consult_course', 'consultant', 'date']
     list_per_page = 2
-    search_fields = ['qq', 'name',]
+    search_fields = ['qq', 'name']
     # model = models.Customer
     # 等于 admin_class.model = models_class
     # 外键数据需要添加 双下划线 consult_course__name
@@ -26,6 +26,7 @@ class CustomerAdmin(BaseAdmin):
 
 class UserProfileAdmin(BaseAdmin):
     list_display = ['user', 'name']
+    search_fields = ['name']
 
 
 def register(models_class, admin_class=None):
