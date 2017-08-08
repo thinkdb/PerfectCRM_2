@@ -16,7 +16,7 @@
                 {% block dml %}
                     <p>Change {% render_app_name admin_class %}</p>
                 {% endblock %}
-                    <form class="form-horizontal" method="post">
+                    <form class="form-horizontal" method="post" onsubmit="return but_commit();">
                         <span style="color: red;">{{ form_obj.errors.as_text }}</span>
                         {% csrf_token %}
                         {% for field in form_obj %}
@@ -33,15 +33,11 @@
                         {% if field.name in admin_class.filter_horizontal %}
                             <div class="col-sm-10">
                             {% build_candidate_selected admin_class field form_obj as candidate_selected %}
-                            {% build_selected admin_class field form_obj  as selected_obj %}
+                            {% build_selected field form_obj  as selected_obj %}
                                 <div class="col-sm-4">
-                                    <select class="field_multiple_css" multiple="multiple">
+                                    <select class="field_multiple_css" multiple="multiple" id="id_{{ field.name }}_from">
                                         {% for can_item in candidate_selected %}
-                                            {% for sel_item in selected_obj %}
-                                                {% if can_item != sel_item %}
-                                                    <option>{{ can_item }}</option>
-                                                {% endif %}
-                                            {% endfor %}
+                                            <option value="{{ can_item.id }}" ondblclick="move_ele_id(this, 'id_{{ field.name }}_from', 'id_{{ field.name }}_to')">{{ can_item }}</option>
                                         {% endfor %}
                                     </select>
 
@@ -54,9 +50,9 @@
 
                                 <div class="col-sm-4">
 
-                                    <select class="field_multiple_css" multiple="multiple">
+                                    <select class="field_multiple_css" tag="chosen_list" multiple="multiple" name="{{ field.name }}" id="id_{{ field.name }}_to">
                                         {% for item in selected_obj %}
-                                            <option>{{ item }}</option>
+                                            <option value="{{ item.id }}" ondblclick="move_ele_id(this, 'id_{{ field.name }}_to', 'id_{{ field.name }}_from')">{{ item }}</option>
                                         {% endfor %}
                                     </select>
                                     <a>Remove all</a>
@@ -78,4 +74,18 @@
             </div>
         </div>
 </div>
+<script>
+    function move_ele_id(ele, from_id, to_id) {
+        $(ele).attr('ondblclick', 'move_ele_id(this,' + "'" + to_id+"'," + "'" + from_id + "')");
+        $(ele).appendTo('#' + to_id);
+    }
+
+    function but_commit() {
+        $("select[tag='chosen_list'] option").each(function (){
+            $(this).prop('selected', true);
+        });
+        return true;
+    }
+
+</script>
 {% endblock %}

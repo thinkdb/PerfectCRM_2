@@ -239,23 +239,41 @@ def build_candidate_selected(admin_class, field, form_obj):
     :param field:
     :return:
     """
-    # 获取指定列的对象
+    # 表对象获取指定列的对象
     candidate_selected_obj = getattr(admin_class.model, field.name)
 
-    # 通过列对象查找 多对多 的数据
+    # 通过数据行对象查找 多对多 的数据
     candidate_selected = candidate_selected_obj.rel.to.objects.all()
-    print(dir(candidate_selected))
-    return candidate_selected
+
+    # 已经选择的数据
+    if form_obj.instance.id: # 更新数据
+        selected_obj = getattr(form_obj.instance, field.name)
+        selected = selected_obj.all()
+    else: # 新数据
+        return candidate_selected
+
+    standby_obj_list = []
+    # 已经选择的数据在待选择框不允许存在
+    for obj in candidate_selected:
+        if obj not in selected:
+            standby_obj_list.append(obj)
+    return standby_obj_list
 
 
 @register.simple_tag
-def build_selected(admin_class, field, form_obj):
+def build_selected(field, form_obj):
     """
     生成已经选择的数据
     :param admin_class: 表结构对象信息
     :param field: filter_horizontal 中的对象
     :return:
     """
-    selected_obj = getattr(admin_class.model.objects.last(), field.name)
-    selected = selected_obj.all()
+    if form_obj.instance.id:  # 更新数据
+        selected_obj = getattr(form_obj.instance, field.name)
+
+        # selected_obj = getattr(admin_class.model.objects.last(), field.name)
+        selected = selected_obj.all()
+
+    else: # 新增数据
+        selected = []
     return selected
