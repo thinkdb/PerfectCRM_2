@@ -229,3 +229,33 @@ def render_page_bottom(contacts, filter_conditions, orderby_key):
         filters += "&o={order_key}".format(order_key=orderby_key)
 
     return mark_safe(filters)
+
+
+@register.simple_tag
+def build_candidate_selected(admin_class, field, form_obj):
+    """
+     生成待选择的记录
+    :param admin_class:
+    :param field:
+    :return:
+    """
+    # 获取指定列的对象
+    candidate_selected_obj = getattr(admin_class.model, field.name)
+
+    # 通过列对象查找 多对多 的数据
+    candidate_selected = candidate_selected_obj.rel.to.objects.all()
+    print(dir(candidate_selected))
+    return candidate_selected
+
+
+@register.simple_tag
+def build_selected(admin_class, field, form_obj):
+    """
+    生成已经选择的数据
+    :param admin_class: 表结构对象信息
+    :param field: filter_horizontal 中的对象
+    :return:
+    """
+    selected_obj = getattr(admin_class.model.objects.last(), field.name)
+    selected = selected_obj.all()
+    return selected

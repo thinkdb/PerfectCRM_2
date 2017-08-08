@@ -1,0 +1,37 @@
+.field_multiple_css {
+    width: 280px;
+    border-radius: 4px;
+    height: 300px!important;
+}
+
+.selector-chooser {
+    float: left;
+    width: 22px;
+    background-color: #eee;
+    border-radius: 10px;
+    margin: 10em 5px 0 5px;
+    padding: 0;
+}
+
+.selector-add {
+    width: 16px;
+    height: 16px;
+    display: block;
+    /*text-indent: -3000px;*/
+    overflow: hidden;
+    margin-left: 5px;
+    cursor: default;
+    opacity: 0.3;
+
+}
+
+.selector-remove{
+    width: 16px;
+    height: 16px;
+    display: block;
+    margin-left: 5px;
+    /*text-indent: -3000px;*/
+    overflow: hidden;
+    cursor: default;
+    opacity: 0.3;
+}

@@ -19,7 +19,7 @@ def create_model_form(request, admin_class):
             # print(dir(field_obj), field_obj)
             if field_obj.__class__ in (fields.TypedChoiceField, models.ModelChoiceField):
                 # 定义选择框宽度
-                field_obj.widget.attrs['style'] = 'width:80px;'
+                field_obj.widget.attrs['style'] = 'width:100px;'
             else:
                 field_obj.widget.attrs['style'] = 'width:300px;'
             field_obj.widget.attrs['class'] = 'form-control'

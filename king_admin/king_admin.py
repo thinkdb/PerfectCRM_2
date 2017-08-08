@@ -12,13 +12,20 @@ class BaseAdmin(object):
     list_filters = []    # 参与过滤规则的列名
     list_per_page = 20   # 默认每页显示的行数
     search_fields = []   # 需要搜索的列名
+    ordering = []        # 排序列, 正负号为排序顺序
+    filter_horizontal = []  # 要显示多选框列
+    radio_fields = []       # 单选列
+    readonly_fields = []    # 只读列
 
 
 class CustomerAdmin(BaseAdmin):
     list_display = ['id', 'qq', 'name', 'status', 'source', 'consult_course', 'date']
     list_filters = ['status', 'source', 'consult_course', 'consultant', 'date']
     list_per_page = 2
+    ordering = ['-id']
     search_fields = ['qq', 'name']
+    filter_horizontal = ['tags']
+
     # model = models.Customer
     # 等于 admin_class.model = models_class
     # 外键数据需要添加 双下划线 consult_course__name

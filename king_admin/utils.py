@@ -35,7 +35,12 @@ def table_filter(request, admin_class):
         orderby_key = request.GET.get('o')
         object_list = admin_class.model.objects.filter(**filter_conditions).filter(q).all().order_by(orderby_key)
     else:
-        object_list = admin_class.model.objects.filter(**filter_conditions).filter(q).all()
+        ordering_keys = admin_class.ordering
+        if ordering_keys:
+            ordering = ordering_keys
+        else:
+            ordering = ['-id']
+        object_list = admin_class.model.objects.filter(**filter_conditions).filter(q).all().order_by(*ordering)
     return object_list, filter_conditions, orderby_key, query_content
 
 

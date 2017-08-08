@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from king_admin import king_admin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from king_admin import utils
@@ -72,6 +72,7 @@ def display_table_objs(request, app_name, table_name):
 
 def table_obj_change(request, app_name, table_name, wid):
     """
+    数据表修改记录
     :param request: 请求的链接信息
     :param app_name:
     :param table_name:
@@ -91,12 +92,46 @@ def table_obj_change(request, app_name, table_name, wid):
         # 传入前端的数据,在传入数据库中的数据, 这时 form 会做更新操作, 如果只有前端数据, 只会新建一条记录
         form_obj = model_form_class(request.POST, instance=recode_info)
         if form_obj.is_valid:
-            form_obj.save()
+            try:
+                form_obj.save()
+            except:
+                pass
     else:
         # 实例化类对象
         form_obj = model_form_class(instance=recode_info)
 
-
     return render(request, 'king_admin/table_obj_change.html', {'form_obj': form_obj,
                                                                 'app_name': app_name,
                                                                 'admin_class': admin_class})
+
+
+def table_obj_add(request, app_name, table_name):
+    """
+    数据表添加记录
+    :param request: 请求的链接信息
+    :param app_name:
+    :param table_name:
+    :return:
+    """
+    # 获取每个表的 model
+    admin_class = king_admin.enabled_admins[app_name][table_name]
+
+    # 动态创建 ModelForm 类对象
+    model_form_class = forms.create_model_form(request, admin_class)
+
+    if request.method == 'POST':
+        # 传入前端的数据,在传入数据库中的数据, 这时 form 会做更新操作, 如果只有前端数据, 只会新建一条记录
+        form_obj = model_form_class(request.POST)   # 新增数据
+        if form_obj.is_valid:
+            try:
+                form_obj.save()
+                return redirect(request.path.replace('/add/', '/'))    # 增加完后跳转到信息表页面
+            except:
+                pass
+    else:
+        # 实例化类对象
+        form_obj = model_form_class()
+
+    return render(request, 'king_admin/table_obj_add.html', {'form_obj': form_obj,
+                                                             'app_name': app_name,
+                                                             'admin_class': admin_class})
