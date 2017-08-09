@@ -4,6 +4,7 @@
     height: 300px!important;
 }
 
+
 .selector-chooser {
     float: left;
     width: 22px;
@@ -35,3 +36,67 @@
     cursor: default;
     opacity: 0.3;
 }
+
+.deletelink-box {
+    float: left;
+    margin: 0;
+}
+
+
+.deletelink-box a{
+    color: white;
+    text-decoration: none;
+}
+
+.deletelink-box a:hover{
+    color: white;
+    text-decoration: none;
+}
+
+.deletelink {
+    display: block;
+    background: #CC3434;
+    border-radius: 4px;
+    padding: 10px 15px;
+    height: 34px;
+    line-height: 15px;
+    color: white;
+}
+
+.deletelink:hover {
+    display: block;
+    background: #ba2121;
+    border-radius: 4px;
+    padding: 10px 15px;
+    height: 34px;
+    line-height: 15px;
+    color: white;
+}
+.cancel-link {
+    display: inline-block;
+    vertical-align: middle;
+    height: 34px;
+    line-height: 15px;
+    background: #ddd;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: black;
+    margin: 0 0 0 10px;
+}
+.cancel-link:hover {
+    display: inline-block;
+    vertical-align: middle;
+    height: 34px;
+    line-height: 15px;
+    background: #ccc;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: black;
+    margin: 0 0 0 10px;
+}
+
+.submit-row a:hover{
+    color: black;
+    text-decoration: none;
+}
+

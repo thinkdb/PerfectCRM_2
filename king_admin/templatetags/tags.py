@@ -274,6 +274,71 @@ def build_selected(field, form_obj):
         # selected_obj = getattr(admin_class.model.objects.last(), field.name)
         selected = selected_obj.all()
 
-    else: # 新增数据
+    else:  # 新增数据
         selected = []
     return selected
+
+
+@register.simple_tag
+def get_source_page(request):
+    return request.path.replace('/del/', '/change/')
+
+
+@register.simple_tag
+def print_admin_class(recode_obj):
+    """
+    获取对象及所有与其关联的数据
+    :param recode_obj: 要操作的记录 对象
+    :return:
+    """
+    objs = [recode_obj]
+    # print(recode_obj.model._meta.model_name)
+    if objs:
+        # model_class = objs[0]._meta.model
+        # model_name = objs[0]._meta.model_name
+        # print(model_class, model_name)
+        return mark_safe(recursive_related_objs_lookup(objs))
+
+
+@register.simple_tag
+def recursive_related_objs_lookup(objs):
+    """
+    :param objs: 要操作的表对象
+    :return:
+    """
+    ul_ele = "<ul>"
+    for obj in objs:
+        li_ele = """<li> {name}: {value} </li>""".format(name=obj._meta.verbose_name,
+                                                         value=obj.__str__().strip('<>'))
+        ul_ele += li_ele
+        # print(dir(obj._meta))
+        for m2m_field in obj._meta.local_many_to_many:
+            sub_ul_ele = "<ul>"
+            m2m_field_obj = getattr(obj, m2m_field.name)
+
+            for o in m2m_field_obj.select_related():
+                li_ele = """<li> {name}: {value} </li>""".format(name=m2m_field.verbose_name,
+                                                                 value=o.__str__().strip('<>'))
+                sub_ul_ele += li_ele
+
+            sub_ul_ele += "</ul>"
+            ul_ele += sub_ul_ele
+
+        for related_obj in obj._meta.related_objects:
+            if 'ManyToOPneRel' not in related_obj.__repr__():
+                continue
+            if hasattr(obj, related_obj.get_accessor_name()):
+                accessor_obj = getattr(obj, related_obj.get_accessor_name)
+
+                if hasattr(accessor_obj, 'select_related'):
+                    target_objs = accessor_obj.select_related()
+                else:
+                    target_objs = accessor_obj
+
+                if len(target_objs) > 0:
+                    nodes = recursive_related_objs_lookup(target_objs)
+                    ul_ele += nodes
+    ul_ele += '</ul>'
+    print(ul_ele)
+    return ul_ele
+

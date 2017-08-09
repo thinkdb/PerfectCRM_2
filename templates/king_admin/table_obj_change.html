@@ -16,6 +16,7 @@
                 {% block dml %}
                     <p>Change {% render_app_name admin_class %}</p>
                 {% endblock %}
+                {% block body_form %}
                     <form class="form-horizontal" method="post" onsubmit="return but_commit();">
                         <span style="color: red;">{{ form_obj.errors.as_text }}</span>
                         {% csrf_token %}
@@ -30,24 +31,36 @@
                                     {{ field.label }}
                                 {% endif %}
                             </label>
+                        <!-- 控制多选框的显示方式 -->
                         {% if field.name in admin_class.filter_horizontal %}
                             <div class="col-sm-10">
                             {% build_candidate_selected admin_class field form_obj as candidate_selected %}
                             {% build_selected field form_obj  as selected_obj %}
+
+                            <!-- 左侧待选选择数据 -->
                                 <div class="col-sm-4">
-                                    <select class="field_multiple_css" multiple="multiple" id="id_{{ field.name }}_from">
+                                    <select class="field_multiple_css" tag="can_select_list" multiple="multiple" id="id_{{ field.name }}_from">
                                         {% for can_item in candidate_selected %}
                                             <option value="{{ can_item.id }}" ondblclick="move_ele_id(this, 'id_{{ field.name }}_from', 'id_{{ field.name }}_to')">{{ can_item }}</option>
                                         {% endfor %}
                                     </select>
 
-                                    <a>Choose all</a>
+                                    <a onclick="move_ele_all('id_{{ field.name }}_from', 'id_{{ field.name }}_to');">Choose all</a>
                                 </div>
+                            <!-- 中间箭头 -->
                                 <ul class="selector-chooser">
-                                    <li><a title="Choose" href="#" id="id_tags_add_link" class="selector-add"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></li>
-                                    <li><a title="Remove" href="#" id="id_tags_remove_link" class="selector-remove"><i class="fa fa-arrow-left" aria-hidden="true"></i></a></li>
+                                    <li>
+                                        <a title="Choose" id="id_{{ field.name }}_add_link" class="selector-add" onclick="move_selector_link('id_{{ field.name }}_from', 'id_{{ field.name }}_to');">
+                                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a title="Remove" id="id_{{ field.name }}_remove_link" class="selector-remove" onclick="move_selector_link('id_{{ field.name }}_to', 'id_{{ field.name }}_from');">
+                                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                                        </a>
+                                    </li>
                                 </ul>
-
+                            <!-- 右侧已经选择数据 -->
                                 <div class="col-sm-4">
 
                                     <select class="field_multiple_css" tag="chosen_list" multiple="multiple" name="{{ field.name }}" id="id_{{ field.name }}_to">
@@ -55,7 +68,7 @@
                                             <option value="{{ item.id }}" ondblclick="move_ele_id(this, 'id_{{ field.name }}_to', 'id_{{ field.name }}_from')">{{ item }}</option>
                                         {% endfor %}
                                     </select>
-                                    <a>Remove all</a>
+                                    <a onclick="move_ele_all('id_{{ field.name }}_to', 'id_{{ field.name }}_from');">Remove all</a>
                                 </div>
                             </div>
                         {% else %}
@@ -66,10 +79,16 @@
                         </div>
                     {% endfor %}
                     <div class="submit-row">
+                        {% if form_obj.instance.id %}
+                        <p class="deletelink-box">
+                            <a href="{% url 'table_obj_del' app_name table_name form_obj.instance.id %}" class="deletelink">删除</a>
+                        </p>
+                        {% endif %}
                         <input type="submit" class="btn btn-info pull-right" value="保存" />
                     </div>
 
                     </form>
+                {% endblock %}
                 </div>
             </div>
         </div>
@@ -85,6 +104,37 @@
             $(this).prop('selected', true);
         });
         return true;
+    }
+
+    function move_ele_all(from_id, to_id) {
+        $("#" + from_id).find('option').each(function () {
+            console.log(111);
+            $(this).appendTo('#' + to_id);
+        })
+    }
+
+    function move_selector_link(from_id, to_id) {
+        $("#" + from_id).find('option').each(function () {
+            if ($(this).prop('selected')){
+                $(this).appendTo('#' + to_id);
+            }
+        })
+    }
+
+    function selector_remove_link(to_id) {
+        $("select[tag='chosen_list'] option").each(function () {
+            if ($(this).prop('selected')){
+                $(this).appendTo('#' + to_id);
+            }
+        })
+    }
+
+    function selector_add_link(to_id) {
+        $("select[tag='can_select_list'] option").each(function () {
+            if ($(this).prop('selected')){
+                $(this).appendTo('#' + to_id);
+            }
+        })
     }
 
 </script>

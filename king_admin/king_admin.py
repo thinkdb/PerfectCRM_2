@@ -34,6 +34,7 @@ class CustomerAdmin(BaseAdmin):
 class UserProfileAdmin(BaseAdmin):
     list_display = ['user', 'name']
     search_fields = ['name']
+    filter_horizontal = ['roles']
 
 
 def register(models_class, admin_class=None):

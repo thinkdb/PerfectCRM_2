@@ -70,6 +70,26 @@ def display_table_objs(request, app_name, table_name):
                    "app_name": app_name})
 
 
+def table_obj_del(request, app_name, table_name, wid):
+    """
+    删除表记录, 展示所有关联的数据
+    :param request: 请求的链接信息
+    :param app_name:
+    :param table_name:
+    :param wid: 记录的主键id值
+    :return:
+    """
+    # 获取每个表的 model
+    admin_class = king_admin.enabled_admins[app_name][table_name]
+
+    # 根据数据主键，获取记录信息
+    recode_obj = admin_class.model.objects.get(id=wid)
+
+    return render(request, 'king_admin/table_obj_delete.html', {'admin_class': admin_class,
+                                                                'app_name': app_name,
+                                                                'recode_obj': recode_obj})
+
+
 def table_obj_change(request, app_name, table_name, wid):
     """
     数据表修改记录
@@ -102,7 +122,8 @@ def table_obj_change(request, app_name, table_name, wid):
 
     return render(request, 'king_admin/table_obj_change.html', {'form_obj': form_obj,
                                                                 'app_name': app_name,
-                                                                'admin_class': admin_class})
+                                                                'admin_class': admin_class,
+                                                                'table_name': table_name})
 
 
 def table_obj_add(request, app_name, table_name):

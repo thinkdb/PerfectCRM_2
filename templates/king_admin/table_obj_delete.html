@@ -1,0 +1,25 @@
+{% extends "king_admin/table_obj_change.html" %}
+{% load tags %}
+
+{% block body_content %}
+
+<div class="container" style="padding-top: 50px;">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background: #79aec8; color: white;">
+                    <h3 class="panel-title">{% build_titile_ele app_name admin_class %}</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Delete {% render_app_name admin_class %}</p>
+                    {% print_admin_class recode_obj %}
+                    <form>
+                        <div class="submit-row">
+                            <input type="submit" class="btn btn-danger pull-left" value="删除" />
+                            <a href="{% get_source_page request %}" class="cancel-link">返回修改</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+{% endblock %}
