@@ -303,42 +303,120 @@ def print_admin_class(recode_obj):
 @register.simple_tag
 def recursive_related_objs_lookup(objs):
     """
+    生成 多对多, 多对一, 一对一的关联数据
     :param objs: 要操作的表对象
     :return:
     """
     ul_ele = "<ul>"
+
     for obj in objs:
+        # print(obj.__str__)
+        #  ---> <bound method Customer.__str__ of <Customer: gasdf>>
+
+        # name 为m models 里面 Meta 定义的 verbose_name 的值
+        # value 为 models 里面返回的名字, 就是下面的示例中的 self.xxxx
+        # def __str__(self): return self.xxxx
+
+        # 由于 return 返回值时,会自定义返回数据的类型，下面的 strip('<>') 就是把自定义返回值两边的 '<>' 删除
+        # 这边要删除的内容需要根据 models 里面返回的数据格式匹配,不然无法删除多余的字符
         li_ele = """<li> {name}: {value} </li>""".format(name=obj._meta.verbose_name,
                                                          value=obj.__str__().strip('<>'))
         ul_ele += li_ele
         # print(dir(obj._meta))
+
+        # 多对多
+
+        # print(obj._meta.local_many_to_many)
+        # ---> [<django.db.models.fields.related.ManyToManyField: tags>]
+        # 获取所有跟这个对象直接关联的 m2m 字段
         for m2m_field in obj._meta.local_many_to_many:
+            # m2m_field -->> crm.Customer.tags
             sub_ul_ele = "<ul>"
+
+            # print(m2m_field, dir(obj))
+            # m2m_field.name = tags
             m2m_field_obj = getattr(obj, m2m_field.name)
 
+            # print(m2m_field_obj, dir(m2m_field_obj))
+            # ----> crm.Tag.None
+
+            # Customer.tags.select_related()
             for o in m2m_field_obj.select_related():
+                # print(m2m_field_obj.select_related())
+                # ----> <QuerySet [<Tag: aaa>, <Tag: bb>, <Tag: cccc>]> 重复多次
+
+                # print(dir(m2m_field))
                 li_ele = """<li> {name}: {value} </li>""".format(name=m2m_field.verbose_name,
                                                                  value=o.__str__().strip('<>'))
+
+                # print(o.__str__())
+                # aaa
+                # bb
+                # cccc
                 sub_ul_ele += li_ele
 
             sub_ul_ele += "</ul>"
             ul_ele += sub_ul_ele
 
+        # 多对一, 一对一
+        # print(obj._meta.related_objects
+        # 获取多对一对象, 返回结果为:
+        #  --->  (<ManyToOneRel: crm.customerfollowup>, <ManyToOneRel: crm.enrollment>, <ManyToOneRel: crm.payment>)
         for related_obj in obj._meta.related_objects:
-            if 'ManyToOPneRel' not in related_obj.__repr__():
-                continue
-            if hasattr(obj, related_obj.get_accessor_name()):
-                accessor_obj = getattr(obj, related_obj.get_accessor_name)
 
+            # print(related_obj.__repr__())
+            #    ----> <ManyToOneRel: crm.customerfollowup>
+
+            if 'ManyToManyRel' in related_obj.__repr__():
+                if hasattr(obj, related_obj.get_accessor_name()):
+
+                    # 如果有,就获取
+                    # Customer.customerfollowup_set.all()
+                    accessor_obj = getattr(obj, related_obj.get_accessor_name())
+                    # print(accessor_obj, dir(accessor_obj))
+                    # ----> crm.CustomerFollowUp.None
+
+                    # 判断 crm.CustomerFollowUp.None 里面有没有 select_related 方法, 获取所有关联的数据
+                    if hasattr(accessor_obj, 'select_related'):
+                        target_objs = accessor_obj.select_related()
+
+                        # 等于 Customer.customerfollowup_set.all()
+                        sub_ul_ele = "<ul>"
+                        for o in target_objs:
+                            li_ele = """<li> {name}: {value} </li>""".format(name=o._meta.verbose_name,
+                                                                             value=o.__str__().strip('<>'))
+                            sub_ul_ele += li_ele
+
+                        sub_ul_ele += "</ul>"
+                        ul_ele += sub_ul_ele
+
+            # print(related_obj.get_accessor_name())
+            #    ----> customerfollowup_set
+            # 反向查找时使用的对象
+
+            # 判断 obj = Customer 里面 有没有 customerfollowup_set 等对象
+            elif hasattr(obj, related_obj.get_accessor_name()):
+
+                # 如果有,就获取
+                # Customer.customerfollowup_set.all()
+                accessor_obj = getattr(obj, related_obj.get_accessor_name())
+                # print(accessor_obj, dir(accessor_obj))
+                # ----> crm.CustomerFollowUp.None
+
+                # 判断 crm.CustomerFollowUp.None 里面有没有 select_related 方法, 获取所有关联的数据
                 if hasattr(accessor_obj, 'select_related'):
                     target_objs = accessor_obj.select_related()
+                    # 等于 Customer.customerfollowup_set.all()
+
                 else:
                     target_objs = accessor_obj
 
                 if len(target_objs) > 0:
+                    # 递归操作
                     nodes = recursive_related_objs_lookup(target_objs)
                     ul_ele += nodes
+
     ul_ele += '</ul>'
-    print(ul_ele)
+
     return ul_ele
 

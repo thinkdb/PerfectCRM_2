@@ -84,6 +84,9 @@ def table_obj_del(request, app_name, table_name, wid):
 
     # 根据数据主键，获取记录信息
     recode_obj = admin_class.model.objects.get(id=wid)
+    if request.method == 'POST':
+        recode_obj.delete()   # 删除数据, 跳转到所有记录页面
+        return redirect('/king_admin/{app}/{table}'.format(app=app_name, table=table_name))
 
     return render(request, 'king_admin/table_obj_delete.html', {'admin_class': admin_class,
                                                                 'app_name': app_name,

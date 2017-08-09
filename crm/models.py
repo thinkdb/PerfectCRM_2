@@ -29,7 +29,7 @@ class Customer(models.Model):
                      (1, '未报名'),
                      )
     status = models.SmallIntegerField(choices=status_choice)
-    tags = models.ManyToManyField(to="Tag", blank=True, db_constraint=False)
+    tags = models.ManyToManyField(to="Tag", blank=True, db_constraint=False, )
 
     def __str__(self):
         return self.qq

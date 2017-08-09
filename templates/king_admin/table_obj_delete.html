@@ -11,8 +11,11 @@
                 </div>
                 <div class="panel-body">
                     <p>Delete {% render_app_name admin_class %}</p>
+
+                    <!-- 获取对象及所有与其关联的数据 -->
                     {% print_admin_class recode_obj %}
-                    <form>
+                    <form method="post">
+                        {% csrf_token %}
                         <div class="submit-row">
                             <input type="submit" class="btn btn-danger pull-left" value="删除" />
                             <a href="{% get_source_page request %}" class="cancel-link">返回修改</a>
