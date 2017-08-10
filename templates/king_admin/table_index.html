@@ -51,8 +51,8 @@
                                         {% render_app_name admin %}
                                     </a>
                                 </td>
-                                <td>add</td>
-                                <td>change</td>
+                                <td><a href="{{ request.path }}{{ app_name }}/{{ table_name }}/add/">Add Recode</a></td>
+{#                                <td>change</td>#}
                             </tr>
                         {% endfor %}
                     </tbody>

@@ -22,13 +22,13 @@ def display_table_objs(request, app_name, table_name):
     # model_obj = getattr(models_model, table_name)
 
     # 获取所有的列数据
-    col_obj = king_admin.enabled_admins[app_name][table_name]
+    admin_class = king_admin.enabled_admins[app_name][table_name]
 
     # from crm import models
     # print(col_obj.model.objects, models.UserProfile)
 
     # 动态过滤数据
-    object_list, filter_conditions, orderby_key, query_content = utils.table_filter(request, col_obj)
+    object_list, filter_conditions, orderby_key, query_content = utils.table_filter(request, admin_class)
     # 排序数据， 这边需要修改成使用统一的数据源，现在无法对过滤后的数据进行排序
     # object_list, orderby_key = utils.request_order_data(request, object_list)
     """
@@ -37,12 +37,21 @@ def display_table_objs(request, app_name, table_name):
                        <option selected> 时使用的
     """
 
+    # action 动作
+    action_list = admin_class.action
+    for action in action_list:
+        if hasattr(admin_class, action):
+            action_func = getattr(admin_class, action)
+            action_func(admin_class, request, 'queryset')
+
+
+
     """
     page
     """
     # 根据id来获取分页数据
 
-    page_num = col_obj.list_per_page    # 需要与 tags.render_page_ele 里面的 page_num 相等, 每页显示的行数, 默认为20行
+    page_num = admin_class.list_per_page    # 需要与 tags.render_page_ele 里面的 page_num 相等, 每页显示的行数, 默认为20行
     page = request.GET.get('page')
     # id_range = int(page) * page_num
     # count_pages = col_obj.model.objects.count()
@@ -62,7 +71,7 @@ def display_table_objs(request, app_name, table_name):
         contacts = paginator.page(paginator.num_pages)
 
     return render(request, 'king_admin/table_objs.html',
-                  {"col_obj": col_obj,
+                  {"col_obj": admin_class,
                    "contacts": contacts,
                    "filter_conditions": filter_conditions,
                    "orderby_key": orderby_key,
@@ -84,6 +93,26 @@ def table_obj_del(request, app_name, table_name, wid):
 
     # 根据数据主键，获取记录信息
     recode_obj = admin_class.model.objects.get(id=wid)
+    # 等于 recode_obj = models.Customer.objects.get(id=7)
+
+    # print(recode_obj, dir(recode_obj))
+    # 99685 ['DoesNotExist', 'MultipleObjectsReturned', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__',
+    #  '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__le__', '__lt__',
+    # '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setstate__',
+    # '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_check_column_name_clashes',
+    # '_check_field_name_clashes', '_check_fields', '_check_id_field', '_check_index_together', '_check_local_fields',
+    # '_check_long_column_names', '_check_m2m_through_same_relationship', '_check_managers', '_check_model',
+    # '_check_model_name_db_lookup_clashes', '_check_ordering', '_check_swappable', '_check_unique_together',
+    # '_do_insert', '_do_update', '_get_FIELD_display', '_get_next_or_previous_by_FIELD',
+    #  '_get_next_or_previous_in_order', '_get_pk_val', '_get_unique_checks', '_meta', '_perform_date_checks',
+    # '_perform_unique_checks', '_save_parents', '_save_table', '_set_pk_val', '_state', 'check', 'clean',
+    #  'clean_fields', 'consult_course', 'consult_course_id', 'consultant', 'consultant_id', 'content',
+    #  'customerfollowup_set', 'date', 'date_error_message', 'delete', 'enrollment_set', 'from_db', 'full_clean',
+    #  'get_deferred_fields', 'get_next_by_date', 'get_previous_by_date', 'get_source_display', 'get_status_display',
+    #  'id', 'memo', 'name', 'objects', 'payment_set', 'phone', 'pk', 'prepare_database_save', 'qq', 'qq_name',
+    #  'referral_from', 'refresh_from_db', 'save', 'save_base', 'serializable_value', 'source', 'source_choice',
+    #  'status', 'status_choice', 'tags', 'unique_error_message', 'validate_unique']
+
     if request.method == 'POST':
         recode_obj.delete()   # 删除数据, 跳转到所有记录页面
         return redirect('/king_admin/{app}/{table}'.format(app=app_name, table=table_name))
@@ -108,6 +137,7 @@ def table_obj_change(request, app_name, table_name, wid):
     # 动态创建 ModelForm 类对象
     model_form_class = forms.create_model_form(request, admin_class)
 
+
     # 根据数据主键，获取记录信息
     recode_info = admin_class.model.objects.get(id=wid)
 
@@ -126,7 +156,8 @@ def table_obj_change(request, app_name, table_name, wid):
     return render(request, 'king_admin/table_obj_change.html', {'form_obj': form_obj,
                                                                 'app_name': app_name,
                                                                 'admin_class': admin_class,
-                                                                'table_name': table_name})
+                                                                'table_name': table_name,
+                                                                'recode_info': recode_info})
 
 
 def table_obj_add(request, app_name, table_name):

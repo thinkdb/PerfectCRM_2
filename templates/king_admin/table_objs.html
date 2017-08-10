@@ -2,6 +2,7 @@
 {% load tags %}
 {% block css %}
 <link rel="stylesheet" href="/static/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/static/css/king_admin_table_change.css">
 {% endblock %}
 
 {% block  body_content %}
@@ -44,11 +45,27 @@
                     {% endif %}
                 </form>
 
+                    <div class="actions">
+                        <span>Action:</span>
+                        <label>
+                            <select name="action" required="">
+                                <option value="" selected="">---------</option>
+                                <option value="delete_selected">Delete selected 上课记录</option>
+                            </select>
+                        </label>
+                        <input type="hidden" name="select_across" value="0" class="select-across">
+                        <input  type="submit" class="btn btn-success" value="执行" />
+                    </div>
+
+
 
                     {# 动态表格内容 #}
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th style="width: 10px;">
+                                    <input type="checkbox" id="chose_all" onclick="ChoseAll(this); return">
+                                </th>
                                 {% for column in col_obj.list_display %}
                                     {% build_table_header_orderby_column column orderby_key filter_conditions %}
 
@@ -59,6 +76,9 @@
 {#                            {% get_query_sets col_obj as query_sets %}#}
                             {% for item in contacts.object_list %}
                                 <tr>
+                                <td style="width: 10px;">
+                                    <input type="checkbox" id="checkbox_id">
+                                </td>
                                     {% build_table_row request item col_obj %}
                                 </tr>
                             {% endfor %}
@@ -108,5 +128,19 @@
         </div>
 
     </div>
+
+
+    <script>
+
+    function ChoseAll(self) {
+        if($(self).prop('checked')){
+            $('tbody input[type="checkbox"]').prop('checked', true)
+        }else{
+            $('tbody input[type="checkbox"]').prop('checked', false)
+        }
+    }
+
+
+    </script>
 
 {% endblock %}

@@ -17,6 +17,11 @@ class BaseAdmin(object):
     radio_fields = []       # 单选列
     readonly_fields = []    # 只读列
 
+    action = ['defaults_action']  # 默认的 action 动作
+
+    def defaults_action(self, request, queryset):
+        print(self, request, queryset)
+
 
 class CustomerAdmin(BaseAdmin):
     list_display = ['id', 'qq', 'name', 'status', 'source', 'consult_course', 'date']

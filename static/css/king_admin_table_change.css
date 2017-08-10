@@ -100,3 +100,53 @@
     text-decoration: none;
 }
 
+.actions label{
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.actions {
+    padding: 10px;
+    background: #fff;
+    border-top: none;
+    border-bottom: none;
+    line-height: 24px;
+    color: #999;
+}
+
+select {
+    margin: 2px 0;
+    padding: 2px 3px;
+    vertical-align: middle;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+    font-weight: normal;
+    font-size: 13px;
+}
+.actions select {
+    vertical-align: top;
+    height: 34px;
+    background: none;
+    color: #000;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 0 0 0 4px;
+    margin: 0;
+    margin-left: 10px;
+}
+
+.actions .button {
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 -15px 20px -10px rgba(0, 0, 0, 0.15) inset;
+    cursor: pointer;
+    height: 24px;
+    line-height: 1;
+    padding: 4px 8px;
+    margin: 0;
+    color: #333;
+}
