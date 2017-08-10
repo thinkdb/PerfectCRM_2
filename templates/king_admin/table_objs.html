@@ -11,7 +11,7 @@
         <div class="row">
             <div class="panel panel-default">
                 <div class="panel-heading" style="background: #79aec8; color: white;">
-                  <h3 class="panel-title">{% build_titile_ele app_name col_obj %}
+                  <h3 class="panel-title">{% build_titile_ele app_name admin_class %}
                     <a class="pull-right" href="{{ request.path }}add/">ADD</a>
                   </h3>
                 </div>
@@ -20,21 +20,21 @@
                     {# 过滤内容 #}
                 <form>
                     <div class="row">
-                    {% if col_obj.list_filters %}
-                        {% for condition in col_obj.list_filters %}
+                    {% if admin_class.list_filters %}
+                        {% for condition in admin_class.list_filters %}
                             <div class="col-lg-2">
                                 <span>{{ condition }}</span>
-                                {% render_filter_ele condition col_obj filter_conditions %}
+                                {% render_filter_ele condition admin_class filter_conditions %}
                             </div>
                         {% endfor %}
                         <input style="margin-top: 19px;" type="submit" class="btn btn-success" value="过滤" />
                     {% endif %}
                     </div>
-                    {% if col_obj.search_fields %}
+                    {% if admin_class.search_fields %}
                     <div class="row" style="margin-top: 20px;">
                         <div class="col-lg-6">
                             <div class="input-group">
-                                <input type="text" class="form-control" name="_query" placeholder="Search for {% for item in col_obj.search_fields %} {{ item }}{% endfor %}"
+                                <input type="text" class="form-control" name="_query" placeholder="Search for {% for item in admin_class.search_fields %} {{ item }}{% endfor %}"
                                        value="{{ query_content }}">
                                 <span class="input-group-btn">
                                     <input type="submit" class="btn btn-success" value="检索" />
@@ -43,20 +43,22 @@
                         </div>
                     </div>
                     {% endif %}
-                </form>
 
+            </form>
+                <form method="post" >
+                    {% csrf_token %}
                     <div class="actions">
                         <span>Action:</span>
                         <label>
                             <select name="action" required="">
-                                <option value="" selected="">---------</option>
-                                <option value="delete_selected">Delete selected 上课记录</option>
+                                <option value="0" selected="">---------</option>
+                                {% build_action_ele admin_class request %}
                             </select>
                         </label>
                         <input type="hidden" name="select_across" value="0" class="select-across">
-                        <input  type="submit" class="btn btn-success" value="执行" />
+                        <input  type="submit" class="btn btn-success" onclick="return GetAllCheckbox(this)" value="执行"/>
                     </div>
-
+                </form>
 
 
                     {# 动态表格内容 #}
@@ -66,20 +68,20 @@
                                 <th style="width: 10px;">
                                     <input type="checkbox" id="chose_all" onclick="ChoseAll(this); return">
                                 </th>
-                                {% for column in col_obj.list_display %}
+                                {% for column in admin_class.list_display %}
                                     {% build_table_header_orderby_column column orderby_key filter_conditions %}
 
                                 {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
-{#                            {% get_query_sets col_obj as query_sets %}#}
+{#                            {% get_query_sets admin_class as query_sets %}#}
                             {% for item in contacts.object_list %}
                                 <tr>
                                 <td style="width: 10px;">
                                     <input type="checkbox" id="checkbox_id">
                                 </td>
-                                    {% build_table_row request item col_obj %}
+                                    {% build_table_row request item admin_class %}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -106,7 +108,7 @@
     {#                            <li class="active"><a href="#">{{ contacts.number }} <span class="sr-only">(current)</span></a></li>#}
     {##}
                                 {% for page_counter in contacts.paginator.page_range %}
-                                    {% render_page_ele page_counter contacts col_obj filter_conditions orderby_key query_content %}
+                                    {% render_page_ele page_counter contacts admin_class filter_conditions orderby_key query_content %}
                                 {% endfor %}
 
                                 {# 尾页区 #}
@@ -139,6 +141,34 @@
             $('tbody input[type="checkbox"]').prop('checked', false)
         }
     }
+
+    function GetAllCheckbox(select_obj) {
+        console.log(23456);
+        var recode_list = new Array();
+        $('tbody input[type="checkbox"]').each(function(){
+            if($(this).prop('checked')){
+                recode_list.push($(this).parent().next().text());
+            }
+{#            else{#}
+{#                alert('请选择记录!!!');#}
+{#                return false;#}
+{#            }#}
+        });
+
+        var action_fun = $('select[name="action"]').val();
+
+        console.log(recode_list, action_fun);
+        if(recode_list.length && action_fun != '0'){
+            $('input[name="select_across"]').val(recode_list.toString());
+            return true;
+        }else{
+            alert('请选择记录与操作动作!!!');
+            return false;
+        }
+
+    }
+
+
 
 
     </script>

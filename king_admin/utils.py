@@ -12,7 +12,7 @@ def table_filter(request, admin_class):
     """
 
     filter_conditions = {}
-    ignore_keys = ['o', 'page', '_query']
+    ignore_keys = ['o', 'page', '_query', 'select_across']
     orderby_key = None
 
     # 添加过滤条件，key 为标签的 name 属性值， 需要提前设置好

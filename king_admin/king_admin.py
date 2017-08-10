@@ -21,6 +21,7 @@ class BaseAdmin(object):
 
     def defaults_action(self, request, queryset):
         print(self, request, queryset)
+        queryset.delete()
 
 
 class CustomerAdmin(BaseAdmin):

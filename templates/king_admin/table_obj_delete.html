@@ -19,6 +19,11 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="submit-row">
+                            {% if delete_id %}
+                                <input type="hidden" name="_selected_action" value="{{ delete_id }}">
+                                <input type="hidden" name="_action" value="{{ action }}">
+                                <input type="hidden" name="_post" value="yes">
+                            {% endif %}
                             <input type="submit" class="btn btn-danger pull-left" value="删除" />
                             <a href="{% get_source_page request %}" class="cancel-link">返回修改</a>
                         </div>

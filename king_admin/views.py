@@ -27,6 +27,29 @@ def display_table_objs(request, app_name, table_name):
     # from crm import models
     # print(col_obj.model.objects, models.UserProfile)
 
+
+    # action 动作
+    if request.method == "POST":
+        select_across = request.POST.get('select_across', None)
+        post_flag = request.POST.get('_post', None)
+        if select_across:
+            action = request.POST.get('action', None)
+            recode_obj = admin_class.model.objects.filter(id__in=select_across.split(','))
+            return render(request, 'king_admin/table_obj_delete.html', {'admin_class': admin_class,
+                                                                        'app_name': app_name,
+                                                                        'recode_obj': recode_obj,
+                                                                        'delete_id': select_across,
+                                                                        'action': action})
+        if post_flag:
+            select_across = request.POST.get('_selected_action', None)
+            action = request.POST.get('_action', None)
+            if select_across:
+                recode_obj = admin_class.model.objects.filter(id__in=select_across.split(','))
+                if action:
+                    if hasattr(admin_class, action):
+                        action_func = getattr(admin_class, action)
+                        action_func(admin_class, request, recode_obj)
+
     # 动态过滤数据
     object_list, filter_conditions, orderby_key, query_content = utils.table_filter(request, admin_class)
     # 排序数据， 这边需要修改成使用统一的数据源，现在无法对过滤后的数据进行排序
@@ -36,13 +59,6 @@ def display_table_objs(request, app_name, table_name):
     filter_conditions: request.GET.items 的数据，动态查询的标签数据， 用于固定原来的选项
                        <option selected> 时使用的
     """
-
-    # action 动作
-    action_list = admin_class.action
-    for action in action_list:
-        if hasattr(admin_class, action):
-            action_func = getattr(admin_class, action)
-            action_func(admin_class, request, 'queryset')
 
 
 
@@ -71,7 +87,7 @@ def display_table_objs(request, app_name, table_name):
         contacts = paginator.page(paginator.num_pages)
 
     return render(request, 'king_admin/table_objs.html',
-                  {"col_obj": admin_class,
+                  {"admin_class": admin_class,
                    "contacts": contacts,
                    "filter_conditions": filter_conditions,
                    "orderby_key": orderby_key,

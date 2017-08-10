@@ -299,15 +299,20 @@ def print_admin_class(recode_obj):
     :param recode_obj: 要操作的记录 对象
     :return:
     """
-
+    objs = []
+    try:
+        len(recode_obj)
     # 这边添加到列表里面，是为删除多条记录时准备的，
-    objs = [recode_obj, ]
+        objs.append(recode_obj)
+    except:
+        objs.append([recode_obj])
     # print(recode_obj.model._meta.model_name)
     if objs:
+        for obj in objs:
         # model_class = objs[0]._meta.model
         # model_name = objs[0]._meta.model_name
         # print(model_class, model_name)
-        return mark_safe(recursive_related_objs_lookup(objs))
+            return mark_safe(recursive_related_objs_lookup(obj))
 
 
 @register.simple_tag
@@ -438,3 +443,13 @@ def recursive_related_objs_lookup(objs):
 
     return ul_ele
 
+
+@register.simple_tag
+def build_action_ele(admin_class, request, query_set='11111'):
+    option_ele = ""
+
+    for action in admin_class.action:
+        if hasattr(admin_class, action):
+            option_ele += "<option value='{id}'>{item}</option>".format(id=action, item=action)
+
+    return mark_safe(option_ele)
