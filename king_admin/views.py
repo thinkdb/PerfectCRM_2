@@ -27,28 +27,32 @@ def display_table_objs(request, app_name, table_name):
     # from crm import models
     # print(col_obj.model.objects, models.UserProfile)
 
-
     # action 动作
     if request.method == "POST":
         select_across = request.POST.get('select_across', None)
         post_flag = request.POST.get('_post', None)
+
+        # 需要把 action 动作丢给 king_admin 来处理，包含返回的页面内容
+        # filter_id = admin_class[0] + '__in'
+
         if select_across:
             action = request.POST.get('action', None)
+            # filter_dic = {filter_id: select_across.split(',')}
             recode_obj = admin_class.model.objects.filter(id__in=select_across.split(','))
-            return render(request, 'king_admin/table_obj_delete.html', {'admin_class': admin_class,
-                                                                        'app_name': app_name,
-                                                                        'recode_obj': recode_obj,
-                                                                        'delete_id': select_across,
-                                                                        'action': action})
+            if action:
+                if hasattr(admin_class, action):
+                    action_func = getattr(admin_class, action)
+                    return action_func(admin_class, request, recode_obj)
         if post_flag:
             select_across = request.POST.get('_selected_action', None)
             action = request.POST.get('_action', None)
             if select_across:
+                # filter_dic = {filter_id: select_across.split(',')}
                 recode_obj = admin_class.model.objects.filter(id__in=select_across.split(','))
                 if action:
                     if hasattr(admin_class, action):
                         action_func = getattr(admin_class, action)
-                        action_func(admin_class, request, recode_obj)
+                        return action_func(admin_class, request, recode_obj)
 
     # 动态过滤数据
     object_list, filter_conditions, orderby_key, query_content = utils.table_filter(request, admin_class)
@@ -152,7 +156,6 @@ def table_obj_change(request, app_name, table_name, wid):
 
     # 动态创建 ModelForm 类对象
     model_form_class = forms.create_model_form(request, admin_class)
-
 
     # 根据数据主键，获取记录信息
     recode_info = admin_class.model.objects.get(id=wid)

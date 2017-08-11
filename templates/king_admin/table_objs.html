@@ -45,6 +45,8 @@
                     {% endif %}
 
             </form>
+
+                <!-- action 内容 -->
                 <form method="post" >
                     {% csrf_token %}
                     <div class="actions">
@@ -52,7 +54,7 @@
                         <label>
                             <select name="action" required="">
                                 <option value="0" selected="">---------</option>
-                                {% build_action_ele admin_class request %}
+                                {% build_action_ele admin_class %}
                             </select>
                         </label>
                         <input type="hidden" name="select_across" value="0" class="select-across">
@@ -69,7 +71,7 @@
                                     <input type="checkbox" id="chose_all" onclick="ChoseAll(this); return">
                                 </th>
                                 {% for column in admin_class.list_display %}
-                                    {% build_table_header_orderby_column column orderby_key filter_conditions %}
+                                    {% build_table_header_orderby_column column orderby_key filter_conditions query_content%}
 
                                 {% endfor %}
                             </tr>
@@ -143,11 +145,14 @@
     }
 
     function GetAllCheckbox(select_obj) {
-        console.log(23456);
         var recode_list = new Array();
         $('tbody input[type="checkbox"]').each(function(){
             if($(this).prop('checked')){
-                recode_list.push($(this).parent().next().text());
+                // 使用下面这个会导致没有使用id 列时会报错
+{#                recode_list.push($(this).parent().next().text());#}
+                // 表格中的第一列都会有个 a 标签，链接中包含了id 的值，所以通过解析 链接来获取id值，这样不管id列有没有显示，都能正常处理数据
+                link_id = $(this).parent().parent().find('a').attr('href');
+                recode_list.push(link_id.split('/').slice(-2, -1));
             }
 {#            else{#}
 {#                alert('请选择记录!!!');#}
@@ -157,7 +162,7 @@
 
         var action_fun = $('select[name="action"]').val();
 
-        console.log(recode_list, action_fun);
+{#        console.log(recode_list, action_fun);#}
         if(recode_list.length && action_fun != '0'){
             $('input[name="select_across"]').val(recode_list.toString());
             return true;

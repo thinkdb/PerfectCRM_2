@@ -103,12 +103,15 @@
         $("select[tag='chosen_list'] option").each(function (){
             $(this).prop('selected', true);
         });
+        // 去除禁止的标签，使用其值能正常传入后台
+        $('div').find('[disabled="disabled"]').each(function(){
+            $(this).attr('disabled', false);
+        });
         return true;
     }
 
     function move_ele_all(from_id, to_id) {
         $("#" + from_id).find('option').each(function () {
-            console.log(111);
             $(this).appendTo('#' + to_id);
         })
     }
@@ -121,21 +124,8 @@
         })
     }
 
-    function selector_remove_link(to_id) {
-        $("select[tag='chosen_list'] option").each(function () {
-            if ($(this).prop('selected')){
-                $(this).appendTo('#' + to_id);
-            }
-        })
-    }
 
-    function selector_add_link(to_id) {
-        $("select[tag='can_select_list'] option").each(function () {
-            if ($(this).prop('selected')){
-                $(this).appendTo('#' + to_id);
-            }
-        })
-    }
+
 
 </script>
 {% endblock %}

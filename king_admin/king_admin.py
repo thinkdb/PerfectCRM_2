@@ -1,4 +1,5 @@
 from crm import models
+from django.shortcuts import render, redirect, HttpResponse
 """
 django 的注册功能是把 表的model信息 与 自定义的类（用于显示列，过滤列等信息的类）进行一个关联
 数据为一个字典形式
@@ -17,11 +18,36 @@ class BaseAdmin(object):
     radio_fields = []       # 单选列
     readonly_fields = []    # 只读列
 
-    action = ['defaults_action']  # 默认的 action 动作
+    action = []  # 默认的 action 动作，
+
+    # 控制在前端显示的内容， 最后一个{table_name}是必须的，显示要操作的表名
+    # 想自定义 action 时，需要 设置 action, action_display 和 action 中定义的函数
+    action_display = {
+    }
 
     def defaults_action(self, request, queryset):
-        print(self, request, queryset)
-        queryset.delete()
+        """
+        处理 action 的具体函数， 必须上传三个参数
+        :param request: 请求的链接
+        :param queryset: 要操作的对象集合
+        :return:
+        """
+
+        app_name = self.model._meta.app_label
+        select_across = request.POST.get('select_across', None)
+        action = request.POST.get('action', None)
+        if select_across:
+            return render(request, 'king_admin/table_obj_delete.html', {'admin_class': self,
+                                                                        'app_name': app_name,
+                                                                        'recode_obj': queryset,
+                                                                        'delete_id': select_across,
+                                                                        'action': action})
+        else:
+            select_across = request.POST.get('_selected_action', None)
+            action = request.POST.get('_action', None)
+            if select_across and action:
+                queryset.delete()
+                return redirect(request.path)
 
 
 class CustomerAdmin(BaseAdmin):
@@ -32,10 +58,19 @@ class CustomerAdmin(BaseAdmin):
     search_fields = ['qq', 'name']
     filter_horizontal = ['tags']
 
+    # 自定义 action 的内容
+    # action = ['xxxx']
+    # action_display = {'xxxx': '测试'}
+    #
+    # def xxxx(self, request, queryset):
+    #     print('测试 action 项')
+    #     return HttpResponse('测试 action 项')
+
     # model = models.Customer
     # 等于 admin_class.model = models_class
     # 外键数据需要添加 双下划线 consult_course__name
 
+    readonly_fields = ['qq', 'source']
 
 class UserProfileAdmin(BaseAdmin):
     list_display = ['user', 'name']

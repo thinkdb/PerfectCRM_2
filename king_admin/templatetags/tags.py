@@ -177,7 +177,7 @@ def render_filter_ele(condition, admin_class, filter_conditions):
 
 
 @register.simple_tag
-def build_table_header_orderby_column(column, orderby_key, filter_conditions):
+def build_table_header_orderby_column(column, orderby_key, filter_conditions, query_content=''):
     """
     单列排序
     :param column: 要显示的列名
@@ -188,10 +188,14 @@ def build_table_header_orderby_column(column, orderby_key, filter_conditions):
 
     filters = ''
     angle_str = ''
+    _query = ''
     for k, v in filter_conditions.items():
         filters += "&%s=%s" % (k, v)
 
-    th_tag = """<th><a href="?o={order_key}{filters}">{column}</a>{angle}</th>"""
+    if query_content:
+        _query += '&_query={content}'.format(content=query_content)
+
+    th_tag = """<th><a href="?o={order_key}{filters}{query}">{column}</a>{angle}</th>"""
     if orderby_key and orderby_key.startswith('-'):
         ord_key = column
     else:
@@ -205,7 +209,7 @@ def build_table_header_orderby_column(column, orderby_key, filter_conditions):
                         'class="fa fa-caret-up" aria-hidden="true"></i>'
     else:
         angle_str = ''
-    return mark_safe(th_tag.format(order_key=ord_key, filters=filters, column=column, angle=angle_str))
+    return mark_safe(th_tag.format(order_key=ord_key, filters=filters, query=_query, column=column, angle=angle_str))
 
 
 @register.simple_tag
@@ -249,7 +253,7 @@ def build_candidate_selected(admin_class, field, form_obj):
     candidate_selected = candidate_selected_obj.rel.to.objects.all()
 
     # 已经选择的数据
-    if form_obj.instance.id: # 更新数据
+    if form_obj.instance.id:   # 更新数据
         selected_obj = getattr(form_obj.instance, field.name)
         selected = selected_obj.all()
     else: # 新数据
@@ -445,11 +449,20 @@ def recursive_related_objs_lookup(objs):
 
 
 @register.simple_tag
-def build_action_ele(admin_class, request, query_set='11111'):
+def build_action_ele(admin_class):
     option_ele = ""
+    action_ele_verbose_name = admin_class.model._meta.verbose_name
+    action_list = admin_class.action
 
-    for action in admin_class.action:
-        if hasattr(admin_class, action):
-            option_ele += "<option value='{id}'>{item}</option>".format(id=action, item=action)
-
+    option_ele += "<option value='{id}'>{item}</option>".format(id='defaults_action',
+                                                                item='Delete selected {table_name}'.format(
+                                                                    table_name=action_ele_verbose_name))
+    print(action_list)
+    if action_list:
+        for action in action_list:
+            if hasattr(admin_class, action):
+                display = admin_class.action_display[action]
+                action_display = display.format(table_name=action_ele_verbose_name)
+                option_ele += "<option value='{id}'>{item}</option>".format(id=action,
+                                                                            item=action_display)
     return mark_safe(option_ele)
