@@ -1,4 +1,5 @@
 from crm import models
+from django.core.validators import ValidationError
 from django.shortcuts import render, redirect, HttpResponse
 """
 django 的注册功能是把 表的model信息 与 自定义的类（用于显示列，过滤列等信息的类）进行一个关联
@@ -28,6 +29,7 @@ class BaseAdmin(object):
     def defaults_action(self, request, queryset):
         """
         处理 action 的具体函数， 必须上传三个参数
+        :param self: admin_class
         :param request: 请求的链接
         :param queryset: 要操作的对象集合
         :return:
@@ -37,17 +39,39 @@ class BaseAdmin(object):
         select_across = request.POST.get('select_across', None)
         action = request.POST.get('action', None)
         if select_across:
-            return render(request, 'king_admin/table_obj_delete.html', {'admin_class': self,
-                                                                        'app_name': app_name,
-                                                                        'recode_obj': queryset,
-                                                                        'delete_id': select_across,
-                                                                        'action': action})
+            return render(request, 'king_admin/table_objs_delete.html', {'admin_class': self,
+                                                                         'app_name': app_name,
+                                                                         'recode_obj': queryset,
+                                                                         'delete_id': select_across,
+                                                                         'action': action})
         else:
             select_across = request.POST.get('_selected_action', None)
             action = request.POST.get('_action', None)
             if select_across and action:
                 queryset.delete()
                 return redirect(request.path)
+
+    def coutom_validate(self):
+        """
+        自定义的数据校验, 相当于 django form 里面的 clean, 整体验证
+        :param self: 前端传入的数据, 前端传入的 from_obj 对象
+        :return:
+        """
+        # content = self.cleaned_data.get('content', '')
+        # if len(content) < 20:
+        #    return ValidationError(
+        #        ValidationError('Invalid value.',
+        #                        code='invalid',
+        #                        params={'column': content}, )
+        #    )
+
+        pass
+
+    """
+    如果想要针对单独列进行验证，直接编写 clean_ + 列名的函数即可
+    def clean_name(self):
+        pass
+    """
 
 
 class CustomerAdmin(BaseAdmin):
@@ -71,6 +95,15 @@ class CustomerAdmin(BaseAdmin):
     # 外键数据需要添加 双下划线 consult_course__name
 
     readonly_fields = ['qq', 'source']
+
+    # 针对具体的列进行验证
+    # def clean_name(self):
+    #     """
+    #     :param: self 为 form_obj
+    #     :return:
+    #     """
+    #     print(dir(self), self.cleaned_data.get('name'))
+
 
 class UserProfileAdmin(BaseAdmin):
     list_display = ['user', 'name']

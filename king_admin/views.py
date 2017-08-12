@@ -163,6 +163,7 @@ def table_obj_change(request, app_name, table_name, wid):
     if request.method == 'POST':
         # 传入前端的数据,在传入数据库中的数据, 这时 form 会做更新操作, 如果只有前端数据, 只会新建一条记录
         form_obj = model_form_class(request.POST, instance=recode_info)
+        # forms.model_form_class.my_clean(form_obj)
         if form_obj.is_valid:
             try:
                 form_obj.save()

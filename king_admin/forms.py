@@ -2,6 +2,8 @@ from django.forms import ModelForm
 from django.forms import fields
 from django.forms import models
 
+from django.core.validators import ValidationError
+
 
 def create_model_form(request, admin_class):
     """
@@ -31,15 +33,46 @@ def create_model_form(request, admin_class):
                 if field_name in admin_class.readonly_fields:
                     field_obj.widget.attrs['disabled'] = 'disabled'
 
+            # 定义单个字段的验证
+            if hasattr(admin_class, 'clean_{field_name}'.format(field_name=field_name)):
+                clean_column_func = getattr(admin_class, 'clean_%s' % field_name)
+                setattr(cls, 'clean_{field_name}'.format(field_name=field_name), clean_column_func)
+
         return ModelForm.__new__(cls)
 
-    def my_clean(self):
+    def my_clean(form_obj):
         """
         自定义 clean 方法，校验只读列的数据是否被修改过
-        :param self:
+        :param from_obj: 等于前端传过来的 form_obj 对象
         :return:
         """
-        print(self)
+        # 检测只读列的数据是否发现变化
+        error_list = []
+        if admin_class.readonly_fields:
+            for read_col in admin_class.readonly_fields:
+                if read_col in request.POST.keys():
+                    # 这边是数据库中的数据，可能是外键，需要单独处理
+                    model_col = getattr(form_obj.instance, read_col)
+
+                    # 处理外键
+                    if hasattr(model_col, 'select_related'):
+                        model_m2m = getattr(model_col, 'select_related')().select_related().values_list('id')
+                        model_col = set([str(i[0]) for i in model_m2m])
+                    else:
+                        model_col = set(str(model_col))
+
+                    read_col_recode = set(request.POST.get(read_col))
+                    if model_col != read_col_recode:
+                        error_list.append(ValidationError('%(column)s column is readonly.',
+                                          code='invalid',
+                                          params={'column': read_col},))
+
+        result = admin_class.coutom_validate(form_obj)
+        if result:
+            error_list.append(result)
+
+        if error_list:
+            raise ValidationError(error_list)
 
     class Meta:
         # 绑定具体的表， 也就是要操作的对象

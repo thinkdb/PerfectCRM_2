@@ -292,8 +292,16 @@ def get_source_page(request):
 
 
 @register.simple_tag
-def get_del_recode_info(recode_obj,):
+def get_del_recode_info(recode_obj):
     return recode_obj.__str__().strip('<').strip('>')
+
+
+@register.simple_tag
+def get_select_del_recode_info(recode_obj):
+    recode_list = []
+    for recode in recode_obj:
+        recode_list.append(recode.__str__().strip('<').strip('>'))
+    return recode_list
 
 
 @register.simple_tag
