@@ -133,13 +133,20 @@ def table_obj_del(request, app_name, table_name, wid):
     #  'referral_from', 'refresh_from_db', 'save', 'save_base', 'serializable_value', 'source', 'source_choice',
     #  'status', 'status_choice', 'tags', 'unique_error_message', 'validate_unique']
 
+    if admin_class.readonly_table:
+        errors = {"readonly_table: ": "The table is readonly, can't be delete"}
+    else:
+        errors = {}
+
     if request.method == 'POST':
-        recode_obj.delete()   # 删除数据, 跳转到所有记录页面
-        return redirect('/king_admin/{app}/{table}'.format(app=app_name, table=table_name))
+        if not admin_class.readonly_table:
+            recode_obj.delete()   # 删除数据, 跳转到所有记录页面
+            return redirect('/king_admin/{app}/{table}'.format(app=app_name, table=table_name))
 
     return render(request, 'king_admin/table_obj_delete.html', {'admin_class': admin_class,
                                                                 'app_name': app_name,
-                                                                'recode_obj': recode_obj})
+                                                                'recode_obj': recode_obj,
+                                                                'errors': errors})
 
 
 def table_obj_change(request, app_name, table_name, wid):
@@ -153,7 +160,7 @@ def table_obj_change(request, app_name, table_name, wid):
     """
     # 获取每个表的 model
     admin_class = king_admin.enabled_admins[app_name][table_name]
-
+    admin_class.is_add_form = None
     # 动态创建 ModelForm 类对象
     model_form_class = forms.create_model_form(request, admin_class)
 
@@ -190,7 +197,8 @@ def table_obj_add(request, app_name, table_name):
     """
     # 获取每个表的 model
     admin_class = king_admin.enabled_admins[app_name][table_name]
-
+    f = request.path.split('/')[-2]
+    admin_class.is_add_form = f
     # 动态创建 ModelForm 类对象
     model_form_class = forms.create_model_form(request, admin_class)
 

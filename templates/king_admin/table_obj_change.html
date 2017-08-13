@@ -39,15 +39,15 @@
 
                             <!-- 左侧待选选择数据 -->
                                 <div class="col-sm-4">
-                                {% if field.name in admin_class.readonly_fields %}
+                                {% if field.name in admin_class.readonly_fields and not admin_class.is_add_form %}
                                     <select class="field_multiple_css" disabled tag="can_select_list" multiple="multiple" id="id_{{ field.name }}_from">
                                         {% for can_item in candidate_selected %}
                                             <option value="{{ can_item.id }}" disabled>{{ can_item }}</option>
                                         {% endfor %}
                                     </select>
-
                                     <p>Choose all</p>
                                 {% else %}
+
                                     <select class="field_multiple_css" tag="can_select_list" multiple="multiple" id="id_{{ field.name }}_from">
                                         {% for can_item in candidate_selected %}
                                             <option value="{{ can_item.id }}" ondblclick="move_ele_id(this, 'id_{{ field.name }}_from', 'id_{{ field.name }}_to')">{{ can_item }}</option>
@@ -55,9 +55,24 @@
                                     </select>
 
                                     <a onclick="move_ele_all('id_{{ field.name }}_from', 'id_{{ field.name }}_to');">Choose all</a>
+
                                 {% endif %}
                                 </div>
                             <!-- 中间箭头 -->
+                            {% if field.name in admin_class.readonly_fields and not admin_class.is_add_form  %}
+                                <ul class="selector-chooser">
+                                    <li>
+                                        <a title="Choose" id="id_{{ field.name }}_add_link" class="selector-add" disabled>
+                                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a title="Remove" id="id_{{ field.name }}_remove_link" class="selector-remove" disabled>
+                                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            {% else %}
                                 <ul class="selector-chooser">
                                     <li>
                                         <a title="Choose" id="id_{{ field.name }}_add_link" class="selector-add" onclick="move_selector_link('id_{{ field.name }}_from', 'id_{{ field.name }}_to');">
@@ -70,10 +85,11 @@
                                         </a>
                                     </li>
                                 </ul>
+                            {% endif %}
                             <!-- 右侧已经选择数据 -->
                                 <div class="col-sm-4">
 
-                                {% if field.name in admin_class.readonly_fields %}
+                                {% if field.name in admin_class.readonly_fields and not admin_class.is_add_form  %}
                                     <select class="field_multiple_css" disabled tag="chosen_list" multiple="multiple" name="{{ field.name }}" id="id_{{ field.name }}_to">
                                         {% for item in selected_obj %}
                                             <option value="{{ item.id }}">{{ item }}</option>
@@ -97,14 +113,18 @@
                         {% endif %}
                         </div>
                     {% endfor %}
-                    <div class="submit-row">
-                        {% if form_obj.instance.id %}
-                        <p class="deletelink-box">
-                            <a href="{% url 'table_obj_del' app_name table_name form_obj.instance.id %}" class="deletelink">删除</a>
-                        </p>
-                        {% endif %}
-                        <input type="submit" class="btn btn-info pull-right" value="保存" />
-                    </div>
+
+                    {% if not admin_class.readonly_table %}
+
+                        <div class="submit-row">
+                            {% if form_obj.instance.id %}
+                            <p class="deletelink-box">
+                                <a href="{% url 'table_obj_del' app_name table_name form_obj.instance.id %}" class="deletelink">删除</a>
+                            </p>
+                            {% endif %}
+                            <input type="submit" class="btn btn-info pull-right" value="保存" />
+                        </div>
+                    {% endif %}
 
                     </form>
                 {% endblock %}

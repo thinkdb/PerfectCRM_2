@@ -18,7 +18,7 @@ class BaseAdmin(object):
     filter_horizontal = []  # 要显示多选框列
     radio_fields = []       # 单选列
     readonly_fields = []    # 只读列
-
+    readonly_table = False  # 只读表
     action = []  # 默认的 action 动作，
 
     # 控制在前端显示的内容， 最后一个{table_name}是必须的，显示要操作的表名
@@ -38,17 +38,26 @@ class BaseAdmin(object):
         app_name = self.model._meta.app_label
         select_across = request.POST.get('select_across', None)
         action = request.POST.get('action', None)
+
+        if self.readonly_table:
+            errors = {"readonly_table: ": "The table is readonly, can't be delete"}
+        else:
+            errors = {}
+
         if select_across:
             return render(request, 'king_admin/table_objs_delete.html', {'admin_class': self,
                                                                          'app_name': app_name,
                                                                          'recode_obj': queryset,
                                                                          'delete_id': select_across,
-                                                                         'action': action})
+                                                                         'action': action,
+                                                                         'errors': errors})
         else:
             select_across = request.POST.get('_selected_action', None)
             action = request.POST.get('_action', None)
             if select_across and action:
-                queryset.delete()
+                if not self.readonly_table:
+                    queryset.delete()
+
                 return redirect(request.path)
 
     def coutom_validate(self):
@@ -94,7 +103,8 @@ class CustomerAdmin(BaseAdmin):
     # 等于 admin_class.model = models_class
     # 外键数据需要添加 双下划线 consult_course__name
 
-    readonly_fields = ['qq', 'source']
+    readonly_fields = ['qq', 'source', 'tags']
+    readonly_table = True
 
     # 针对具体的列进行验证
     # def clean_name(self):

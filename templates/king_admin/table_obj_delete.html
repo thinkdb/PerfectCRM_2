@@ -9,6 +9,8 @@
                 <div class="panel-heading" style="background: #79aec8; color: white;">
                     <h3 class="panel-title">{% build_titile_ele app_name admin_class %} / {% get_del_recode_info recode_obj %} / Delete</h3>
                 </div>
+
+
                 <div class="panel-body">
                     <p>确定要删除 <span style="color: red;">{% render_app_name admin_class %} -- {% get_del_recode_info recode_obj %}</span>
                         记录和下面与其关联的所有数据???
@@ -16,6 +18,9 @@
 
                     <!-- 获取对象及所有与其关联的数据 -->
                     {% print_admin_class recode_obj %}
+
+
+                {% if not admin_class.readonly_table %}
                     <form method="post">
                         {% csrf_token %}
                         <div class="submit-row">
@@ -28,7 +33,14 @@
                             <a href="{% get_source_page request %}" class="cancel-link">返回修改</a>
                         </div>
                     </form>
+                {% endif %}
                 </div>
+
+                <h4 style="color: red;">
+                    {% for k, v in errors.items %}
+                        <span>{{ k }}{{ v }}</span>
+                    {% endfor %}
+                </h4>
             </div>
         </div>
 </div>

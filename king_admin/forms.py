@@ -29,9 +29,15 @@ def create_model_form(request, admin_class):
             field_obj.widget.attrs['class'] = 'form-control'
 
             # 处理只读列, 只读列禁止修改
-            if admin_class.readonly_fields:
-                if field_name in admin_class.readonly_fields:
-                    field_obj.widget.attrs['disabled'] = 'disabled'
+            # 如果 admin_class 里面有 is_add_form, 且为真时,表示add 页面, 否则为 change 页面
+            if hasattr(admin_class, 'is_add_form'):
+                if not getattr(admin_class, 'is_add_form'):
+                    if field_name in admin_class.readonly_fields:
+                        field_obj.widget.attrs['disabled'] = 'disabled'
+
+            if admin_class.readonly_table:
+                field_obj.widget.attrs['disabled'] = 'disabled'
+
 
             # 定义单个字段的验证
             if hasattr(admin_class, 'clean_{field_name}'.format(field_name=field_name)):
@@ -66,6 +72,9 @@ def create_model_form(request, admin_class):
                         error_list.append(ValidationError('%(column)s column is readonly.',
                                           code='invalid',
                                           params={'column': read_col},))
+
+        if admin_class.readonly_table:
+            raise ValidationError('The table is readonly.', code='invalid', )
 
         result = admin_class.coutom_validate(form_obj)
         if result:

@@ -24,11 +24,19 @@
                                 <input type="hidden" name="_action" value="{{ action }}">
                                 <input type="hidden" name="_post" value="yes">
                             {% endif %}
+                        {% if not admin_class.readonly_table %}
                             <input type="submit" class="btn btn-danger pull-left" value="删除" />
                             <a href="{% get_source_page request %}" class="cancel-link">返回修改</a>
+                        {% endif %}
+
                         </div>
                     </form>
                 </div>
+                <h4 style="color: red;">
+                    {% for k, v in errors.items %}
+                        <span>{{ k }}{{ v }}</span>
+                    {% endfor %}
+                </h4>
             </div>
         </div>
 </div>
